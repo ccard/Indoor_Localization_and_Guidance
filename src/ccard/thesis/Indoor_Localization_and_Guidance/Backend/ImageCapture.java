@@ -24,5 +24,5 @@ public interface ImageCapture {
      * This method captures a frame from the camera
      * @return a bitmap image
      */
-    public Bitmap capture();
+    public MyMat capture();
 }

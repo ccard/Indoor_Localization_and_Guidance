@@ -1,7 +1,10 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
 
+import android.graphics.Bitmap;
 import android.view.View;
+import android.widget.ImageView;
 import org.json.JSONObject;
+import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.features2d.DMatch;
 import org.opencv.features2d.KeyPoint;
@@ -14,33 +17,78 @@ import java.util.ArrayList;
  */
 public class MyMat extends Mat implements ImageContainer {
 
+    private Mat descriptor;
+    private ArrayList<KeyPoint> keyPoints;
+
+    public MyMat(){
+
+    }
+
     @Override
     public KeyPoint getKeyPoint(int index) {
-        return null;
+        return ((index >= 0) && (index < keyPoints.size()) ? keyPoints.get(index) :
+        null);
     }
 
     @Override
     public ArrayList<KeyPoint> getKeyPoints() {
-        return null;
+        return keyPoints;
     }
 
     @Override
     public Mat getDescriptor() {
-        return null;
+        return descriptor;
     }
 
     @Override
     public boolean hasImageToDraw() {
-        return false;
+        return !this.empty();
     }
 
     @Override
-    public boolean render(View view, boolean withKeyPoints) {
-        return false;
+    public boolean render(final View view, boolean withKeyPoints) {
+
+        Mat drawMat = new Mat();
+        this.copyTo(drawMat);
+
+        if(withKeyPoints){
+            return false;
+        }
+
+        Bitmap img = Bitmap.createBitmap(drawMat.cols(),drawMat.rows(),Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(drawMat,img);
+        drawMat.release();
+        final Bitmap img_draw = img;
+        img.recycle();
+
+
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                ((ImageView) view).setImageBitmap(img_draw);
+            }
+        });
+
+        return true;
     }
 
     @Override
-    public boolean renderComparision(View view, ImageContainer im2, ArrayList<DMatch> matches) {
+    public boolean renderComparision(final View view, ImageContainer im2, ArrayList<DMatch> matches) {
+        Mat drawMat = new Mat();
+        this.copyTo(drawMat);
+
+        Bitmap img = Bitmap.createBitmap(drawMat.cols(),drawMat.rows(),Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(drawMat,img);
+        drawMat.release();
+        final Bitmap img_draw = img;
+        img.recycle();
+
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                ((ImageView) view).setImageBitmap(img_draw);
+            }
+        });
         return false;
     }
 

@@ -46,7 +46,7 @@ public interface ImageContainer{
      * @param withKeyPoints if key Points are to be drawn
      * @return true if it succeded
      */
-    public boolean render(View view,boolean withKeyPoints);
+    public boolean render(final View view,boolean withKeyPoints);
 
     /**
      * This method draws the comparison between the two image keypoints
@@ -55,7 +55,7 @@ public interface ImageContainer{
      * @param matches the list of matches between the two images
      * @return true if it succeeded
      */
-    public boolean renderComparision(View view,ImageContainer im2,
+    public boolean renderComparision(final View view,ImageContainer im2,
                                      ArrayList<DMatch> matches);
 
     /**

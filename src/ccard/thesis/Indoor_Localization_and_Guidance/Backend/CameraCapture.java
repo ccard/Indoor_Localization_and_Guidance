@@ -44,8 +44,14 @@ public class CameraCapture implements ImageCapture{
 
     @Override
     public MyMat capture() {
+        if(!camera.isOpened()) return null;
         MyMat ret = new MyMat();
-        camera.read(ret);
+        boolean grabbed;
+        do {
+            grabbed = camera.grab();
+        } while(!grabbed);
+
+        camera.retrieve(ret,Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
         return ret;
     }
 }

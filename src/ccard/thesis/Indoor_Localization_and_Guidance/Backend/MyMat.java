@@ -20,6 +20,9 @@ public class MyMat extends Mat implements ImageContainer {
     private Mat descriptor;
     private ArrayList<KeyPoint> keyPoints;
 
+    public MyMat(){
+
+    }
     public MyMat(Bitmap img){
         Utils.bitmapToMat(img,this);
     }

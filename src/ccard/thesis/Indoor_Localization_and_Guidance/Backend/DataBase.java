@@ -3,6 +3,7 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by Chris Card on 3/3/14.
@@ -11,6 +12,7 @@ import java.util.ArrayList;
  */
 public interface DataBase {
 
+    public enum RequestType{Paramaters,Images,Images_Path};
     /**
      * This opens the connection to the database
      * @return true if it succeeded in opening the connection
@@ -26,23 +28,27 @@ public interface DataBase {
     /**
      * This method sends a request to the server
      * @param request json object that represents the request
-     *                must contain key "RETURNTYPE" specifying
-     *                if images are desired or a text
      * @return true if it was the request was sent and a results where
      * gotten from the database
      */
-    public boolean sendRequest(JSONObject request);
+    public boolean sendRequest(JSONObject request,RequestType type);
 
     /**
      * This method returns the images gotten from the database
      * @return the list of images
      */
-    public ArrayList<ImageContainer> getImages();
+    public Map<Integer,ImageContainer> getImages();
 
     /**
      * Returns the path to follow
      * @return path of the images in the database
      */
     public ArrayList<Integer> getPath();
+
+    /**
+     * This method gets params from the database
+     * @return
+     */
+    public JSONObject getParams();
 
 }

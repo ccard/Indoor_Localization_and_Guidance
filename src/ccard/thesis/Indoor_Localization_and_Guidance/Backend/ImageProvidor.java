@@ -19,6 +19,12 @@ public interface ImageProvidor {
     public void setIntentService(Class<?> intentService);
 
     /**
+     * This method sets the database for the intentservice to communicate with
+     * @param db the database object to use as the source of the images
+     */
+    public void setDatabase(DataBase db);
+
+    /**
      * Retrieves the image at the desired index
      * @param index of the image in the database
      * @return the image container of the image at the index

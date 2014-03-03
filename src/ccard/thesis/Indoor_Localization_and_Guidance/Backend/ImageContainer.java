@@ -14,7 +14,6 @@ import java.util.ArrayList;
  */
 public interface ImageContainer{
 
-    public enum MaskTypes{Circle,Square}
     /**
      * Retreives a KeyPoint from an index with in the image
      * @param index of the keypoint
@@ -60,25 +59,10 @@ public interface ImageContainer{
                                      ArrayList<DMatch> matches);
 
     /**
-     * This method makes a mask
-     * @param type the type of the mask that should be created
-     * @param radius_side if the lenght of the list is 1 then it is a
-     *                    radius if its length is two then it is a square
-     * @return true if it succeeded
-     */
-    public boolean makeMask(MaskTypes type, int... radius_side);
-
-    /**
-     * This method inits the descripotr based on the params passed in
-     * @param params This requires a fields being the type of descriptor
-     * @return true if it succeeded
-     */
-    public boolean initDescriptor(JSONObject params);
-
-    /**
      * This method calculates the descriptor for the image
      * @return true if it succeeded
      */
-    public boolean calculateDescriptor();
+    public boolean calcDescriptor(Descriptor des);
+
 
 }

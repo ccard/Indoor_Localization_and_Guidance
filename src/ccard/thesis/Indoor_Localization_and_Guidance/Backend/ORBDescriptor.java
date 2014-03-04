@@ -1,5 +1,6 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
 
+import android.content.Context;
 import org.json.JSONObject;
 import org.opencv.core.*;
 import org.opencv.features2d.DescriptorExtractor;
@@ -7,7 +8,12 @@ import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.KeyPoint;
 
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Chris Card on 3/3/14.
@@ -24,7 +30,6 @@ public class ORBDescriptor implements Descriptor {
 
     public ORBDescriptor(){
         des = DescriptorExtractor.create(DescriptorExtractor.ORB);
-        keyPoints = new ArrayList<KeyPoint>();
     }
 
     @Override
@@ -65,14 +70,50 @@ public class ORBDescriptor implements Descriptor {
     }
 
     @Override
-    public boolean initDescriptor(JSONObject params) {
+    public boolean initDescriptor(JSONObject params,Context context) {
         detect = FeatureDetector.create(FeatureDetector.ORB);
+        String xml = XMLparser.build_XML(params);
+        File outDir = context.getCacheDir();
+        File outFile;
 
-        return false;
+        try {
+            outFile = File.createTempFile("orbParams",".xml",outDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if(outFile == null) return false;
+
+        try {
+            FileOutputStream out = new FileOutputStream(outFile);
+            OutputStreamWriter writeOut = new OutputStreamWriter(out);
+            writeOut.write(xml);
+            writeOut.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        detect.read(outFile.getPath());
+        return true;
     }
 
     @Override
-    public boolean calculateDescriptor() {
-        return false;
+    public boolean calculateDescriptor(ImageContainer image) {
+        if (!image.hasImageToDraw() && !image.getClass().isInstance(Mat.class)) return false;
+        List<MatOfKeyPoint> keyPoint = new ArrayList<MatOfKeyPoint>();
+        List<Mat> images = new ArrayList<Mat>();
+        images.add((MyMat)image);
+        List<Mat> desc = new ArrayList<Mat>();
+        List<Mat> masks = new ArrayList<Mat>();
+        masks.add(mask);
+        detect.detect(images,keyPoint,masks);
+        des.compute(images,keyPoint,desc);
+
+        keyPoints = new ArrayList<KeyPoint>(keyPoint.get(0).toList());
+        descript = desc.get(0);
+
+        return true;
     }
 }

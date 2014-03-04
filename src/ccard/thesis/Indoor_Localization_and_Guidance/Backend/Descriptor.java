@@ -1,5 +1,6 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
 
+import android.content.Context;
 import org.json.JSONObject;
 import org.opencv.core.Mat;
 import org.opencv.features2d.KeyPoint;
@@ -40,11 +41,11 @@ public interface Descriptor {
      * @param params This requires a fields being the type of descriptor
      * @return true if it succeeded
      */
-    public boolean initDescriptor(JSONObject params);
+    public boolean initDescriptor(JSONObject params,Context context);
 
     /**
      * This method calculates the descriptor for the image
      * @return true if it succeeded
      */
-    public boolean calculateDescriptor();
+    public boolean calculateDescriptor(ImageContainer image);
 }

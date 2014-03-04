@@ -27,7 +27,7 @@ public class CameraCapture implements ImageCapture{
 
     @Override
     public boolean open(){
-        if(camera == null || camera.isOpened()){
+        if(camera == null || !camera.isOpened()){
            camera = new VideoCapture(0);
            camera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH,cSize.width);
            camera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT,cSize.height);

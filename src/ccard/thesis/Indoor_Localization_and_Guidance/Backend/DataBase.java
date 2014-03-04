@@ -21,13 +21,13 @@ public interface DataBase extends Serializable{
      * This opens the connection to the database
      * @return true if it succeeded in opening the connection
      */
-    public boolean openConnection();
+    public boolean openConnection() throws DBError;
 
     /**
      * Closes the connection to the database
      * @return true if it closed the connection
      */
-    public boolean closeConnection();
+    public boolean closeConnection() throws DBError;
 
     /**
      * This method sends a request to the server
@@ -35,7 +35,7 @@ public interface DataBase extends Serializable{
      * @return true if it was the request was sent and a results where
      * gotten from the database
      */
-    public boolean sendRequest(JSONObject request,RequestType type);
+    public boolean sendRequest(JSONObject request,RequestType type) throws DBError;
 
     /**
      * This method returns the images gotten from the database

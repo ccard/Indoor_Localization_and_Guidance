@@ -18,7 +18,7 @@ public class XMLparser {
         StringBuilder xml = new StringBuilder();
         xml.append(xml_header+"\n");
 
-
+        xml.append(build_helper(j));
 
         return xml.toString();
     }
@@ -32,7 +32,7 @@ public class XMLparser {
             String val = null;
             try {
                 JSONObject value = j.getJSONObject(key);
-                xml.append(build_helper(value));
+                xml.append("<"+key+">").append(build_helper(value)).append("</"+key+">\n");
             } catch (Exception e) {
                 try {
                     Object temp = j.get(key);
@@ -45,7 +45,7 @@ public class XMLparser {
             if (val != null) {
                 xml.append("<"+key+">"+val+"</"+key+">\n");
             }
-
         }
+        return xml.toString();
     }
 }

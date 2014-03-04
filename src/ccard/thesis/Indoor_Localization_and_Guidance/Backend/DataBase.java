@@ -13,7 +13,10 @@ import java.util.Map;
  */
 public interface DataBase extends Serializable{
 
-    public enum RequestType{Paramaters,Images,Images_Path};
+    public enum RequestType{Images,Images_Path};
+
+    public enum ParamReturn{Descriptor,Matcher};
+
     /**
      * This opens the connection to the database
      * @return true if it succeeded in opening the connection
@@ -48,8 +51,8 @@ public interface DataBase extends Serializable{
 
     /**
      * This method gets params from the database
-     * @return
+     * @return JSON object representing the params
      */
-    public JSONObject getParams();
+    public JSONObject getParams(ParamReturn paramReturn);
 
 }

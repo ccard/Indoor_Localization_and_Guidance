@@ -2,6 +2,7 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
 
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ import java.util.Map;
  * This interface is used for interacting with a database so multiple database
  * can be used in the future
  */
-public interface DataBase {
+public interface DataBase extends Serializable{
 
     public enum RequestType{Paramaters,Images,Images_Path};
     /**

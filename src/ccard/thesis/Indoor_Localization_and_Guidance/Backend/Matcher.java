@@ -13,6 +13,7 @@ import java.util.ArrayList;
  */
 public interface Matcher {
 
+    public enum MatchingType{BruteForce,LSH};
     /**
      * This method trains the database matcher with the given params so
      * that matching can be performed against it
@@ -24,9 +25,11 @@ public interface Matcher {
 
     /**
      * This method matches the query image to the database of images
-     * @param params the params to use to match with
+     * @param params the params to use to match with must contain the type of
+     *               Matching that you wish to use (MatchingType) Type as keyword
+     *               and Matching type as the value
      * @param query the query image
      * @return a pair of the image index and the string representing its location
      */
-    public ArrayList<DMatch> match(JSONObject params, ImageContainer query);
+    public ArrayList<ArrayList<DMatch>> match(JSONObject params, ImageContainer query);
 }

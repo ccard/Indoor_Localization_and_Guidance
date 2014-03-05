@@ -41,18 +41,18 @@ public interface DataBase extends Serializable{
      * This method returns the images gotten from the database
      * @return the list of images
      */
-    public Map<Integer,ImageContainer> getImages();
+    public Map<Integer,ImageContainer> getImages() throws DBError;
 
     /**
      * Returns the path to follow
      * @return path of the images in the database
      */
-    public ArrayList<Integer> getPath();
+    public ArrayList<Integer> getPath() throws DBError;
 
     /**
      * This method gets params from the database
      * @return JSON object representing the params
      */
-    public JSONObject getParams(ParamReturn paramReturn);
+    public JSONObject getParams(ParamReturn paramReturn) throws DBError;
 
 }

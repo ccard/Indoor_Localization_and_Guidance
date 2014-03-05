@@ -73,28 +73,7 @@ public class ORBDescriptor implements Descriptor {
     public boolean initDescriptor(JSONObject params,Context context) {
         detect = FeatureDetector.create(FeatureDetector.ORB);
         String xml = XMLparser.build_XML(params);
-        File outDir = context.getCacheDir();
-        File outFile;
-
-        try {
-            outFile = File.createTempFile("orbParams",".xml",outDir);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        if(outFile == null) return false;
-
-        try {
-            FileOutputStream out = new FileOutputStream(outFile);
-            OutputStreamWriter writeOut = new OutputStreamWriter(out);
-            writeOut.write(xml);
-            writeOut.close();
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+        File outFile = XMLparser.createXMLFile("ORBParams",xml,context);
         detect.read(outFile.getPath());
         return true;
     }

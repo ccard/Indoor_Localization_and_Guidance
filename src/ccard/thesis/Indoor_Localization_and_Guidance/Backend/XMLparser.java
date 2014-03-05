@@ -1,8 +1,13 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
 
+import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Iterator;
 
 /**
@@ -47,5 +52,31 @@ public class XMLparser {
             }
         }
         return xml.toString();
+    }
+
+    public static File createXMLFile(String name, String xml, Context context){
+        File outDir = context.getCacheDir();
+        File outFile;
+
+        try {
+            outFile = File.createTempFile(name,".xml",outDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        if(outFile == null) return null;
+
+        try {
+            FileOutputStream out = new FileOutputStream(outFile);
+            OutputStreamWriter writeOut = new OutputStreamWriter(out);
+            writeOut.write(xml);
+            writeOut.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+       return outFile;
     }
 }

@@ -2,6 +2,7 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
 
 import android.util.Pair;
 import org.json.JSONObject;
+import org.opencv.features2d.DMatch;
 
 import java.util.ArrayList;
 
@@ -27,5 +28,5 @@ public interface Matcher {
      * @param query the query image
      * @return a pair of the image index and the string representing its location
      */
-    public Pair<Integer,String> match(JSONObject params, ImageContainer query);
+    public ArrayList<DMatch> match(JSONObject params, ImageContainer query);
 }

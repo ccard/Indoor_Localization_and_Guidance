@@ -3,13 +3,13 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
 import android.content.Context;
 import android.util.Pair;
 import org.json.JSONObject;
+import org.opencv.core.Mat;
+import org.opencv.features2d.DMatch;
 import org.opencv.features2d.DescriptorMatcher;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Ch on 3/5/14.
@@ -30,11 +30,23 @@ public class LSHMatcher implements Matcher {
         File outFile = XMLparser.createXMLFile("LSHParams",xml,context);
         matcher.read(outFile.getPath());
 
+        matcher.add(getDescriptors(db));
+        matcher.train();
         return false;
     }
 
     @Override
-    public Pair<Integer, String> match(JSONObject params, ImageContainer query) {
+    public ArrayList<DMatch> match(JSONObject params, ImageContainer query) {
         return null;
     }
+
+    private List<Mat> getDescriptors(ArrayList<ImageContainer> db){
+        List<Mat> ret = new ArrayList<Mat>();
+
+        for(ImageContainer im : db){
+            ret.add(im.getDescriptor());
+        }
+        return ret;
+    }
+
 }

@@ -17,11 +17,10 @@ public interface Matcher {
     /**
      * This method trains the database matcher with the given params so
      * that matching can be performed against it
-     * @param params the params to init the database to
      * @param db the list of images that represents the database
      * @return true if the training succeeded
      */
-    public boolean train(JSONObject params,ArrayList<ImageContainer> db);
+    public boolean train(ArrayList<ImageContainer> db);
 
     /**
      * This method matches the query image to the database of images
@@ -45,4 +44,10 @@ public interface Matcher {
      */
     public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query,double distanceThreshold,
                       double inlierThreshold);
+
+    /**
+     * This method sets the params for training the matcher and must be called before train
+     * @param params json object representing the params
+     */
+    public void setTrainingParams(JSONObject params);
 }

@@ -20,18 +20,16 @@ public class LSHMatcher implements Matcher {
 
     private DescriptorMatcher matcher;
     private Context context;
+    private boolean hasParams;
+
     public LSHMatcher(Context context){
         matcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
         this.context = context;
     }
 
     @Override
-    public boolean train(JSONObject params, ArrayList<ImageContainer> db) {
-
-        String xml = XMLparser.build_XML(params);
-        File outFile = XMLparser.createXMLFile("LSHParams",xml,context);
-        matcher.read(outFile.getPath());
-
+    public boolean train(ArrayList<ImageContainer> db) {
+        if (!hasParams) return false;
         matcher.add(getDescriptors(db));
         matcher.train();
         return false;
@@ -69,6 +67,14 @@ public class LSHMatcher implements Matcher {
     @Override
     public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query, double distanceThreshold, double inlierThreshold) {
         return -1;
+    }
+
+    @Override
+    public void setTrainingParams(JSONObject params) {
+        String xml = XMLparser.build_XML(params);
+        File outFile = XMLparser.createXMLFile("LSHParams",xml,context);
+        matcher.read(outFile.getPath());
+        hasParams = true;
     }
 
     private List<Mat> getDescriptors(ArrayList<ImageContainer> db){

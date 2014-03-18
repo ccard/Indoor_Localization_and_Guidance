@@ -8,6 +8,7 @@ import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.features2d.DMatch;
 import org.opencv.features2d.DescriptorMatcher;
+import org.opencv.features2d.Features2d;
 import org.opencv.features2d.KeyPoint;
 
 import java.io.File;
@@ -71,14 +72,55 @@ public class LSHMatcher implements Matcher {
     public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db,
                       ImageContainer query, double distanceThreshold, double inlierThreshold) {
         Map<Integer,ArrayList<MyDMatch>> images = filter(buildMatchMap(matches,db,query),20,0.6);
-        Map<Integer,Pair<Mat,List<Integer>>> homographies = buildHomography(images,1.5);
+        Map<Integer,Pair<Mat,List<Integer>>> homographies = buildHomography(images,distanceThreshold);
 
+        Map<Integer,Integer> imageInliers = new HashMap<Integer, Integer>();
+        int best_inlierCount = 0;
+        int second_best = 0;
         for(Integer i : homographies.keySet()){
+            Pair<Mat,List<Integer>> HandIn = homographies.get(i);
+            int sum = 0;
+            for(Integer inlier : HandIn.second){
+                sum += inlier;
+            }
 
+            if (best_inlierCount < sum) {
+                second_best = best_inlierCount;
+                best_inlierCount = sum;
+            } else if (second_best < sum) {
+                second_best = sum;
+            }
+
+            imageInliers.put(i,sum);
         }
 
+        Set<Integer> bestImages = new HashSet<Integer>();
+        for(Integer index : imageInliers.keySet()){
+            if (imageInliers.get(index) >= second_best){
+                bestImages.add(index);
+            }
+        }
 
-        return -1;
+        Map<Integer,ArrayList<MyDMatch>> matches2 = bruteForcesMatch(bestImages,db,query);
+
+        Map<Integer,Pair<Mat,List<Integer>>> fundamentals = buildFundamental(matches2,distanceThreshold,0.99);
+
+        int best = 0;
+        int img = -1;
+        for(Integer i : fundamentals.keySet()){
+            Pair<Mat,List<Integer>> HandIn = fundamentals.get(i);
+            int sum = 0;
+            for(Integer inlier : HandIn.second){
+                sum += inlier;
+            }
+
+            if (best < sum){
+                best = sum;
+                img = i;
+            }
+        }
+
+        return (best >= inlierThreshold ? img : -1);
     }
 
     /**
@@ -107,6 +149,65 @@ public class LSHMatcher implements Matcher {
             homographies.put(index,new Pair<Mat, List<Integer>>(H,liers));
         }
         return homographies;
+    }
+
+    /**
+     * This methods finds the fundamental matrix for each of the images
+     * @param images the images to find the fundimentals for
+     * @param distThreshold the max distance from the epipolar lines
+     * @param confidence the amount of confidence in the measure
+     * @return map of indecies to a pair of fundamental and inliers list
+     */
+    private Map<Integer,Pair<Mat,List<Integer>>> buildFundamental(Map<Integer,ArrayList<MyDMatch>> images,
+                                                                 double distThreshold, double confidence){
+        Map<Integer,Pair<Mat,List<Integer>>> fundamentals = new HashMap<Integer, Pair<Mat, List<Integer>>>();
+
+        for(Integer index : images.keySet()){
+            Pair<MatOfPoint2f,MatOfPoint2f> train_scene = buildTrainScene(images.get(index));
+            Mat inliers = new Mat();
+            Mat H = Calib3d.findFundamentalMat(train_scene.first,train_scene.second,
+                    Calib3d.FM_RANSAC,distThreshold,confidence,inliers);
+            List<Integer> liers = new ArrayList<Integer>();
+            for (int i = 0; i < inliers.cols(); i++){
+                for(int j = 0; j < inliers.rows(); j++){
+                    liers.add(inliers.get(i,j,new int[33]));
+                }
+            }
+
+            fundamentals.put(index,new Pair<Mat, List<Integer>>(H,liers));
+        }
+        return fundamentals;
+    }
+
+    /**
+     * This method uses a hamming brute forces matcher to match the query image to each image
+     * represented by the imageindex
+     * @param imageIndex the indecies of the images to rematch
+     * @param db the database of images
+     * @param query the query image
+     * @return The map of image indecies to their matches
+     */
+    private Map<Integer,ArrayList<MyDMatch>> bruteForcesMatch(Set<Integer> imageIndex, ImageProvidor db,
+                                                              ImageContainer query){
+        Map<Integer,ArrayList<MyDMatch>> matches = new HashMap<Integer, ArrayList<MyDMatch>>();
+        DescriptorMatcher brute = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMINGLUT);
+
+        for (Integer i : imageIndex){
+            MatOfDMatch tempm = new MatOfDMatch();
+            brute.match(query.getDescriptor(),db.getImage(i).getDescriptor(),tempm);
+            List<DMatch> tempdm = tempm.toList();
+            ArrayList<MyDMatch> myDMatches =  new ArrayList<MyDMatch>();
+            for(DMatch d : tempdm){
+                MyDMatch dm = new MyDMatch(d,i,
+                        db.getImage(i).getKeyPoint(d.trainIdx),
+                        query.getKeyPoint(d.queryIdx));
+                myDMatches.add(dm);
+            }
+
+            matches.put(i,myDMatches);
+        }
+
+        return matches;
     }
 
     /**

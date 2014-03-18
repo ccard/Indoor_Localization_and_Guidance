@@ -31,10 +31,17 @@ public class ComputationManager implements Runnable{
     public ComputationManager(Context cont){
         context = cont;
         run = true;
-        //TODO: init db here
+
+        db = new LocalTestDB();
+        Map<DataBase.ParamReturn, JSONObject> params = getParams();
         res = new ResReceiver(new Handler());
         capture = new CameraCapture(context,new Size(400,400));
         descriptor = new ORBDescriptor();
+        matcher = new LSHMatcher(context);
+        descriptor.initDescriptor(params.get(DataBase.ParamReturn.Descriptor),context);
+        matcher.setTrainingParams(params.get(DataBase.ParamReturn.Matcher));
+        pv = new LocalImageProvider();
+        pv.setDatabase(db);
 
     }
 

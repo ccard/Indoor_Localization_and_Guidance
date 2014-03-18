@@ -10,6 +10,7 @@ import java.util.Map;
  */
 public class LocalImageProvider implements ImageProvidor {
 
+    //TODO: add image resources to the application for testing
     private DataBase db;
     private Class<?> intentService;
     private Map<Integer, ImageContainer> images;

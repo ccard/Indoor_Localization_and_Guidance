@@ -20,7 +20,7 @@ public interface Matcher {
      * @param db the list of images that represents the database
      * @return true if the training succeeded
      */
-    public boolean train(ArrayList<ImageContainer> db);
+    public boolean train(ImageProvidor db);
 
     /**
      * This method matches the query image to the database of images

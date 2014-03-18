@@ -38,7 +38,8 @@ public interface ImageProvidor {
     public ArrayList<ImageContainer> getImages();
 
     /**
-     * This method requests
+     * This method requests images from the database
+     * NOTE: This method must be called first!
      * @param params
      */
     public void requestImages(JSONObject params);

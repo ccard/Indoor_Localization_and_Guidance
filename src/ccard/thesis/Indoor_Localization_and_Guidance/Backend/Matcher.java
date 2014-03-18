@@ -32,4 +32,7 @@ public interface Matcher {
      * @return a pair of the image index and the string representing its location
      */
     public ArrayList<ArrayList<DMatch>> match(JSONObject params, ImageContainer query);
+
+    public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query,double distanceThreshold,
+                      double inlierThreshold);
 }

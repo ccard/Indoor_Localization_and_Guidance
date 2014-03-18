@@ -8,6 +8,7 @@ import org.opencv.core.*;
 import org.opencv.features2d.DescriptorExtractor;
 import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.KeyPoint;
+import org.opencv.imgproc.Imgproc;
 
 
 import java.io.File;
@@ -82,7 +83,9 @@ public class ORBDescriptor implements Descriptor {
         if (!image.hasImageToDraw() && !image.getClass().isInstance(Mat.class)) return false;
         List<MatOfKeyPoint> keyPoint = new ArrayList<MatOfKeyPoint>();
         List<Mat> images = new ArrayList<Mat>();
-        images.add((MyMat)image);
+        Mat gray = new Mat();
+        Imgproc.cvtColor((MyMat)image, gray, Imgproc.COLOR_BGR2GRAY);
+        images.add(gray);
         List<Mat> desc = new ArrayList<Mat>();
         List<Mat> masks = new ArrayList<Mat>();
         masks.add(mask);

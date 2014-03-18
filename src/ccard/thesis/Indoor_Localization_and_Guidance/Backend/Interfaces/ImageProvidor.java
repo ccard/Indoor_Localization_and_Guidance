@@ -42,6 +42,6 @@ public interface ImageProvidor {
      * NOTE: This method must be called first!
      * @param params
      */
-    public void requestImages(JSONObject params);
+    public void requestImages(JSONObject params, Descriptor descriptor);
 
 }

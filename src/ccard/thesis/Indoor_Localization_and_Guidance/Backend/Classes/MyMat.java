@@ -6,10 +6,13 @@ import android.widget.ImageView;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Descriptor;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import org.opencv.android.Utils;
+import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.features2d.DMatch;
 import org.opencv.features2d.Features2d;
 import org.opencv.features2d.KeyPoint;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +117,13 @@ public class MyMat extends Mat implements ImageContainer {
 
     @Override
     public boolean calcDescriptor(Descriptor des) {
-        return false;
+        boolean worked = des.calculateDescriptor(this);
+
+        if (!worked) return false;
+
+        descriptor = des.getDescriptor();
+        keyPoints = des.getKeyPoints();
+
+        return true;
     }
 }

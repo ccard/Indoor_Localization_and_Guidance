@@ -1,6 +1,7 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.DataBase;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Descriptor;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageProvidor;
 import org.json.JSONObject;
@@ -39,9 +40,13 @@ public class LocalImageProvider implements ImageProvidor {
     }
 
     @Override
-    public void requestImages(JSONObject params) {
+    public void requestImages(JSONObject params, Descriptor descriptor) {
         try {
             images = db.getImages();
+
+            for(Integer index : images.keySet()){
+                images.get(index).calcDescriptor(descriptor);
+            }
         } catch (DBError dbError) {
             dbError.printStackTrace();
         }

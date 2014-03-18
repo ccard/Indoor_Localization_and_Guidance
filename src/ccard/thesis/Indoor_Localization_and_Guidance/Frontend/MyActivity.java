@@ -6,6 +6,8 @@ import ccard.thesis.Indoor_Localization_and_Guidance.R;
 import org.opencv.android.OpenCVLoader;
 
 public class MyActivity extends Activity {
+
+    public static final String PREFERENCES = "SETTINGS";
     static{
         if(!OpenCVLoader.initDebug()){
         //TODO: error reporting
@@ -19,4 +21,5 @@ public class MyActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
     }
+
 }

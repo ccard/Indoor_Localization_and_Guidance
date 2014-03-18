@@ -63,11 +63,19 @@ public class ComputationManager implements Runnable{
     @Override
     public void run() {
 
+        capture.open();
         while (run){
-            //TODO: image proccessing computations here
+            MyMat query = capture.capture();
         }
 
     }
+
+    @Override
+    public void finalize(){
+
+    }
+
+
 
     private void postImage(ImageContainer img){
         if(img.hasImageToDraw()){

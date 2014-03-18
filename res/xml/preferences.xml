@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceCategory
+    android:title="Capture Device"
+    android:key="input_device">
+    <CheckBoxPreference
+        android:key="camera_input"
+        android:title="Device Camera"
+        android:defaultValue="true"
+        android:persistent="true"
+        />
+    <CheckBoxPreference
+        android:key="bluetooth_input"
+        android:title="Bluetooth Device"
+        android:defaultValue="false"
+        android:persistent="true"/>
+    <PreferenceScreen
+        android:key="blue_tooth_devices"
+        android:title="Select Bluetooth devices"
+        android:dependency="bluetooth_input">
+        <ListPreference
+            android:key="device_list"
+            android:title="Devices">
+
+            </ListPreference>
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+</PreferenceScreen>

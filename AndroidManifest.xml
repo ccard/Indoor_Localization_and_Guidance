@@ -19,6 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <service android:name=".Backend.DataBaseConnection"/>
+        <service android:name=".Backend.Classes.DataBaseConnection"/>
     </application>
 </manifest>

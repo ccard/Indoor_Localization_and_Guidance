@@ -1,10 +1,7 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
-import android.hardware.Camera;
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.JavaCameraView;
-import org.opencv.android.NativeCameraView;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageCapture;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
@@ -13,7 +10,7 @@ import org.opencv.highgui.VideoCapture;
  * Created by Chris Card on 3/3/14.
  * This class implements imagecapture and uses the devices camera
  */
-public class CameraCapture implements ImageCapture{
+public class CameraCapture implements ImageCapture {
 
     private Context context;
     private VideoCapture camera;

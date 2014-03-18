@@ -1,6 +1,8 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Descriptor;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import org.json.JSONObject;
 import org.opencv.core.*;
 import org.opencv.features2d.DescriptorExtractor;
@@ -9,9 +11,6 @@ import org.opencv.features2d.KeyPoint;
 
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 

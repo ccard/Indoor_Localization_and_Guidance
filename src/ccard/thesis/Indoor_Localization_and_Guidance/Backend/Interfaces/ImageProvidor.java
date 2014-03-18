@@ -1,8 +1,7 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 /**

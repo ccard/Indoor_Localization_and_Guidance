@@ -1,5 +1,7 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.DataBase;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import org.json.JSONException;
 import org.json.JSONObject;
 

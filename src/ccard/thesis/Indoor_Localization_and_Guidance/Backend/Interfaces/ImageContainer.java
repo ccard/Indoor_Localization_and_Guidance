@@ -1,9 +1,8 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces;
 
 import android.view.View;
-import org.json.JSONObject;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.MyDMatch;
 import org.opencv.core.Mat;
-import org.opencv.features2d.DMatch;
 import org.opencv.features2d.KeyPoint;
 
 import java.util.ArrayList;

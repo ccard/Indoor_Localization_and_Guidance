@@ -1,4 +1,4 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import org.opencv.features2d.DMatch;
 import org.opencv.features2d.KeyPoint;

@@ -1,4 +1,4 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.os.Bundle;
 import android.os.Handler;

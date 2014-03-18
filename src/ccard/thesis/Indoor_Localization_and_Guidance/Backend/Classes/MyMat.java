@@ -1,17 +1,15 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageView;
-import org.json.JSONObject;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Descriptor;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import org.opencv.android.Utils;
-import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.features2d.DMatch;
 import org.opencv.features2d.Features2d;
 import org.opencv.features2d.KeyPoint;
-import org.opencv.highgui.Highgui;
-import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;

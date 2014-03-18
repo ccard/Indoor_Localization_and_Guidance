@@ -1,5 +1,6 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces;
 
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.DBError;
 import org.json.JSONObject;
 
 import java.io.Serializable;

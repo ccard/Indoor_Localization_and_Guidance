@@ -1,8 +1,10 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.DataBase;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageProvidor;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 /**

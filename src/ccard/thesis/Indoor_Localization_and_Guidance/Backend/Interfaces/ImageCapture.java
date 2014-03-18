@@ -1,6 +1,6 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces;
 
-import android.graphics.Bitmap;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.MyMat;
 
 /**
  * Created by Chris Card on 3/3/14.

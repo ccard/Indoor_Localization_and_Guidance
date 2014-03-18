@@ -1,14 +1,13 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.widget.ImageView;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.*;
 import org.json.JSONObject;
 import org.opencv.core.Size;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

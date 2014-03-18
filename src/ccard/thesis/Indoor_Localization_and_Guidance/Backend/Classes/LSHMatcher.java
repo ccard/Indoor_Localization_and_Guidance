@@ -1,15 +1,16 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
 import android.util.Pair;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageProvidor;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Matcher;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.features2d.DMatch;
 import org.opencv.features2d.DescriptorMatcher;
-import org.opencv.features2d.Features2d;
-import org.opencv.features2d.KeyPoint;
 
 import java.io.File;
 import java.util.*;

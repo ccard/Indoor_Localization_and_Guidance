@@ -1,6 +1,7 @@
-package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
+package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces;
 
-import android.util.Pair;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageProvidor;
 import org.json.JSONObject;
 import org.opencv.features2d.DMatch;
 

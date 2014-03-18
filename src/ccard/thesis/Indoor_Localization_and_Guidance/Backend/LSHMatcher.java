@@ -66,6 +66,11 @@ public class LSHMatcher implements Matcher {
         return match;
     }
 
+    @Override
+    public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query, double distanceThreshold, double inlierThreshold) {
+        return -1;
+    }
+
     private List<Mat> getDescriptors(ArrayList<ImageContainer> db){
         List<Mat> ret = new ArrayList<Mat>();
 

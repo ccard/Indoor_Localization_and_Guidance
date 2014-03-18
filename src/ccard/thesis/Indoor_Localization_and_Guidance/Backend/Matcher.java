@@ -33,6 +33,16 @@ public interface Matcher {
      */
     public ArrayList<ArrayList<DMatch>> match(JSONObject params, ImageContainer query);
 
+    /**
+     * This method verifies the Matches gotten from match method and returns the image that it
+     * thinks is correct
+     * @param matches List of matches between training images and query image
+     * @param db Database of images
+     * @param query The query image that was matched against the database
+     * @param distanceThreshold The acceptable distance projection threshold
+     * @param inlierThreshold The requiered number of inliers to be considered a good match
+     * @return the index of the image
+     */
     public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query,double distanceThreshold,
                       double inlierThreshold);
 }

@@ -3,6 +3,7 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by Chris Card on 3/3/14.
@@ -35,7 +36,7 @@ public interface ImageProvidor {
      * This methods gets all images that the image provider has
      * @return the list of images
      */
-    public ArrayList<ImageContainer> getImages();
+    public Map<Integer,ImageContainer> getImages();
 
     /**
      * This method requests images from the database

@@ -4,9 +4,8 @@ import android.content.Context;
 import android.util.Pair;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.opencv.core.Algorithm;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfDMatch;
+import org.opencv.calib3d.Calib3d;
+import org.opencv.core.*;
 import org.opencv.features2d.DMatch;
 import org.opencv.features2d.DescriptorMatcher;
 import org.opencv.features2d.KeyPoint;
@@ -72,8 +71,63 @@ public class LSHMatcher implements Matcher {
     public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db,
                       ImageContainer query, double distanceThreshold, double inlierThreshold) {
         Map<Integer,ArrayList<MyDMatch>> images = filter(buildMatchMap(matches,db,query),20,0.6);
+        Map<Integer,Pair<Mat,List<Integer>>> homographies = buildHomography(images,1.5);
+
+        for(Integer i : homographies.keySet()){
+
+        }
+
 
         return -1;
+    }
+
+    /**
+     * This method builds homographies for each of the images and also gets the inliers of the
+     * images
+     * @param images The images to make the homographies for
+     * @param distThreshold The max projection error for points when RANSAC is calculating the homography
+     * @return a map from the db image index to the homography and the inlier list
+     */
+    private Map<Integer,Pair<Mat,List<Integer>>> buildHomography(Map<Integer,ArrayList<MyDMatch>> images,
+                                                                double distThreshold){
+        Map<Integer,Pair<Mat,List<Integer>>> homographies = new HashMap<Integer, Pair<Mat, List<Integer>>>();
+
+        for(Integer index : images.keySet()){
+            Pair<MatOfPoint2f,MatOfPoint2f> train_scene = buildTrainScene(images.get(index));
+            Mat inliers = new Mat();
+            Mat H = Calib3d.findHomography(train_scene.first,train_scene.second,Calib3d.FM_RANSAC,
+                    distThreshold,inliers);
+            List<Integer> liers = new ArrayList<Integer>();
+            for (int i = 0; i < inliers.cols(); i++){
+                for(int j = 0; j < inliers.rows(); j++){
+                    liers.add(inliers.get(i,j,new int[33]));
+                }
+            }
+
+            homographies.put(index,new Pair<Mat, List<Integer>>(H,liers));
+        }
+        return homographies;
+    }
+
+    /**
+     * This method builds the train and scene matofpoint2f and returns them as a pair
+     * @param matches the matches to build the matofpoint2f off of
+     * @return The pair of matofpoint2f where the first object of the pair is the training
+     * points and the second is the scene points
+     */
+    private Pair<MatOfPoint2f,MatOfPoint2f> buildTrainScene(ArrayList<MyDMatch> matches){
+        List<Point> train = new ArrayList<Point>();
+        List<Point> scene = new ArrayList<Point>();
+
+        for(MyDMatch dm : matches){
+            train.add(dm.getTrainkp().pt);
+            scene.add(dm.getQuerykp().pt);
+        }
+
+        MatOfPoint2f trainMat = new MatOfPoint2f(train.toArray(new Point[0]));
+        MatOfPoint2f sceneMat = new MatOfPoint2f(scene.toArray(new Point[0]));
+
+        return new Pair<MatOfPoint2f, MatOfPoint2f>(trainMat,sceneMat);
     }
 
     /**
@@ -180,60 +234,6 @@ public class LSHMatcher implements Matcher {
             counter++;
         }
         return ret;
-    }
-
-    private class MyDMatch implements Comparable<MyDMatch>{
-        private int trainIdx,imgIdx,queryIdx;
-        private double distance;
-        private KeyPoint trainkp, querykp;
-
-        public MyDMatch(DMatch m, int dbIndex, KeyPoint train, KeyPoint q){
-            trainIdx = m.trainIdx;
-            imgIdx = dbIndex;
-            queryIdx = m.queryIdx;
-            distance = m.distance;
-            trainkp = train;
-            querykp = q;
-        }
-
-        public int getTrainIdx() {
-            return trainIdx;
-        }
-
-        public int getImgIdx() {
-            return imgIdx;
-        }
-
-        public int getQueryIdx() {
-            return queryIdx;
-        }
-
-        public double getDistance() {
-            return distance;
-        }
-
-        public KeyPoint getTrainkp() {
-            return trainkp;
-        }
-
-        public KeyPoint getQuerykp() {
-            return querykp;
-        }
-
-        @Override
-        public int compareTo(MyDMatch other) {
-            int comparison1 = (distance < other.getDistance() ? -1 : 0);
-            int comparison2 = (distance > other.getDistance() ? 1 : 0);
-
-            if (comparison1 == comparison2){
-                return 0;
-            } else if (comparison1 != 0){
-                return comparison1;
-            } else {
-                return comparison2;
-            }
-        }
-
     }
 
 }

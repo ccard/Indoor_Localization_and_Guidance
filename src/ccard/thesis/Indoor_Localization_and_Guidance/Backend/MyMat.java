@@ -5,11 +5,16 @@ import android.view.View;
 import android.widget.ImageView;
 import org.json.JSONObject;
 import org.opencv.android.Utils;
-import org.opencv.core.Mat;
+import org.opencv.calib3d.Calib3d;
+import org.opencv.core.*;
 import org.opencv.features2d.DMatch;
+import org.opencv.features2d.Features2d;
 import org.opencv.features2d.KeyPoint;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Chris Card on 3/3/14.
@@ -51,11 +56,13 @@ public class MyMat extends Mat implements ImageContainer {
     @Override
     public boolean render(final View view, boolean withKeyPoints) {
 
+        if (!hasImageToDraw()) return false;
         Mat drawMat = new Mat();
         this.copyTo(drawMat);
 
         if(withKeyPoints){
-            return false;
+            Features2d.drawKeypoints(this, new MatOfKeyPoint(keyPoints.toArray(new KeyPoint[0])), drawMat,
+                    Scalar.all(-1), Features2d.DRAW_RICH_KEYPOINTS);
         }
 
         Bitmap img = Bitmap.createBitmap(drawMat.cols(),drawMat.rows(),Bitmap.Config.ARGB_8888);
@@ -76,9 +83,21 @@ public class MyMat extends Mat implements ImageContainer {
     }
 
     @Override
-    public boolean renderComparision(final View view, ImageContainer im2, ArrayList<DMatch> matches) {
+    public boolean renderComparision(final View view, ImageContainer im2, ArrayList<MyDMatch> matches) {
+        if (!hasImageToDraw() || !im2.hasImageToDraw()) return false;
         Mat drawMat = new Mat();
-        this.copyTo(drawMat);
+
+        List<DMatch> dMatches = new ArrayList<DMatch>();
+        for(MyDMatch dm : matches){
+            dMatches.add(dm.toDMatch());
+        }
+
+        MatOfKeyPoint thisImg = new MatOfKeyPoint(keyPoints.toArray(new KeyPoint[0]));
+        MatOfKeyPoint trainImg = new MatOfKeyPoint(im2.getKeyPoints().toArray(new KeyPoint[0]));
+        Features2d.drawMatches(this, thisImg, (MyMat) im2, trainImg, new MatOfDMatch(dMatches.toArray(new DMatch[0])), drawMat,
+                Scalar.all(-1), Scalar.all(-1), new MatOfByte(),Features2d.NOT_DRAW_SINGLE_POINTS);
+
+
 
         Bitmap img = Bitmap.createBitmap(drawMat.cols(),drawMat.rows(),Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(drawMat,img);
@@ -92,7 +111,7 @@ public class MyMat extends Mat implements ImageContainer {
                 ((ImageView) view).setImageBitmap(img_draw);
             }
         });
-        return false;
+        return true;
     }
 
     @Override

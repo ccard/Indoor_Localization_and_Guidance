@@ -50,13 +50,14 @@ public interface ImageContainer{
 
     /**
      * This method draws the comparison between the two image keypoints
+     * ensure that the image calling this method is the query image
      * @param view the view to draw the image on
      * @param im2 the image that it will be compared to
      * @param matches the list of matches between the two images
      * @return true if it succeeded
      */
     public boolean renderComparision(final View view,ImageContainer im2,
-                                     ArrayList<DMatch> matches);
+                                     ArrayList<MyDMatch> matches);
 
     /**
      * This method calculates the descriptor for the image

@@ -59,4 +59,12 @@ public class MyDMatch  implements Comparable<MyDMatch>{
         }
     }
 
+    /**
+     * This method converts MyDMatch to dmatch
+     * @return a dmatch object
+     */
+    public DMatch toDMatch(){
+        return new DMatch(queryIdx,trainIdx,(float)distance);
+    }
+
 }

@@ -38,8 +38,9 @@ public class ComputationManager extends AsyncTask<Integer,View,Integer> {
         context = cont;
         run = true;
 
-        view = (ImageView)((Activity)context).getWindow()
-                .getDecorView().findViewById(R.id.ImageDisplay);
+        view = new ImageView();
+        ((FrameLayout)((Activity)context).getWindow()
+                .getDecorView().findViewById(R.id.ImageDisplay)).addView(view);
 
         prefs = context.getSharedPreferences(MyActivity.PREFERENCES,0);
         db = new LocalTestDB();

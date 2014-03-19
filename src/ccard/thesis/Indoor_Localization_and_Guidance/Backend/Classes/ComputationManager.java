@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.*;
 import ccard.thesis.Indoor_Localization_and_Guidance.Frontend.MyActivity;
@@ -38,7 +39,7 @@ public class ComputationManager extends AsyncTask<Integer,View,Integer> {
         context = cont;
         run = true;
 
-        view = new ImageView();
+        view = new ImageView(context);
         ((FrameLayout)((Activity)context).getWindow()
                 .getDecorView().findViewById(R.id.ImageDisplay)).addView(view);
 

@@ -1,5 +1,6 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces;
 
+import android.graphics.Bitmap;
 import android.view.View;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.MyDMatch;
 import org.opencv.core.Mat;
@@ -45,7 +46,7 @@ public interface ImageContainer{
      * @param withKeyPoints if key Points are to be drawn
      * @return true if it succeded
      */
-    public boolean render(final View view,boolean withKeyPoints);
+    public Bitmap render(boolean withKeyPoints);
 
     /**
      * This method draws the comparison between the two image keypoints
@@ -55,7 +56,7 @@ public interface ImageContainer{
      * @param matches the list of matches between the two images
      * @return true if it succeeded
      */
-    public boolean renderComparision(final View view,ImageContainer im2,
+    public Bitmap renderComparision(ImageContainer im2,
                                      ArrayList<MyDMatch> matches);
 
     /**

@@ -1,6 +1,7 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -16,7 +17,7 @@ import org.opencv.android.BaseLoaderCallback;
 public class Guidance extends Activity {
 
 
-    private AsyncTask<Integer,MyMat,Integer> comp;
+    private AsyncTask<Integer,Bitmap,Integer> comp;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.guidance_view);
@@ -26,19 +27,21 @@ public class Guidance extends Activity {
 
     @Override
     public void onResume(){
-        super.onResume();
+
         //TODO: move this to another method
         if(comp == null) {
             comp = new ComputationManager(this).execute(1);
         } else if (comp.isCancelled()) {
             comp = new ComputationManager(this).execute(1);
         }
+        super.onResume();
     }
 
     @Override
     public void onPause(){
-        super.onPause();
         comp.cancel(true);
+        super.onPause();
+
     }
 
 

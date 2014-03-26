@@ -14,7 +14,9 @@ import ccard.thesis.Indoor_Localization_and_Guidance.Frontend.MyActivity;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
 import org.json.JSONObject;
 import org.opencv.android.Utils;
-import org.opencv.core.Size;
+import org.opencv.core.*;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +26,7 @@ import java.util.Map;
  * This class manages the management and computation so that the
  * GUI thread remains free for other tasks
  */
-public class ComputationManager extends AsyncTask<Integer,MyMat,Integer> {
+public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
 
     private Context context;
     private ImageCapture capture;
@@ -80,23 +82,17 @@ public class ComputationManager extends AsyncTask<Integer,MyMat,Integer> {
         return params;
     }
 
-
-    private void postImage(ImageContainer img,boolean with_key){
-        if(img.hasImageToDraw()){
-            //TODO: create the interface that this will be used with
-            img.render(view,with_key);
-        }
-    }
-
     @Override
     protected Integer doInBackground(Integer... params) {
 
         if (capture.open()) {
             while (run){
                 MyMat query = capture.capture();
-                //query.calcDescriptor(descriptor);
+                Mat rot = Imgproc.getRotationMatrix2D(new Point(query.rows()/2,query.cols()/2),90,1);
+                Imgproc.warpAffine(query,query,rot,query.size());
+                query.calcDescriptor(descriptor);
                 //postImage(query,false);
-                publishProgress(query);
+                publishProgress(query.render(true));
             }
         } else {
             run = false;
@@ -113,11 +109,9 @@ public class ComputationManager extends AsyncTask<Integer,MyMat,Integer> {
     }
 
     @Override
-    protected void onProgressUpdate(MyMat... values) {
+    protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
-        MyMat drawMat = values[0];
-        Bitmap img = Bitmap.createBitmap(drawMat.cols(),drawMat.rows(),Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(drawMat, img);
-        view.setImageBitmap(img);
+        Bitmap drawMat = values[0];
+        view.setImageBitmap(drawMat);
     }
 }

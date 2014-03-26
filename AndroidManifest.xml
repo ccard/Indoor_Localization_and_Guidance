@@ -19,7 +19,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".Frontend.Guidance"/>
+        <activity android:name=".Frontend.Guidance"
+                android:screenOrientation="portrait"
+                android:theme="@android:style/Theme.Holo.Light.NoActionBar"/>
         <service android:name=".Backend.Classes.DataBaseConnection"/>
     </application>
 </manifest>

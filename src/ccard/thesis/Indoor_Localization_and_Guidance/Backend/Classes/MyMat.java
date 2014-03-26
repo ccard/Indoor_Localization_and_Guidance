@@ -55,9 +55,9 @@ public class MyMat extends Mat implements ImageContainer {
     }
 
     @Override
-    public boolean render(final View view, boolean withKeyPoints) {
+    public Bitmap render(boolean withKeyPoints) {
 
-        if (!hasImageToDraw()) return false;
+        if (!hasImageToDraw()) return null;
         Mat drawMat = new Mat();
         this.copyTo(drawMat);
 
@@ -69,23 +69,13 @@ public class MyMat extends Mat implements ImageContainer {
         Bitmap img = Bitmap.createBitmap(drawMat.cols(),drawMat.rows(),Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(drawMat,img);
         drawMat.release();
-        final Bitmap img_draw = img;
-        img.recycle();
 
-
-        view.post(new Runnable() {
-            @Override
-            public void run() {
-                ((ImageView) view).setImageBitmap(img_draw);
-            }
-        });
-
-        return true;
+        return img;
     }
 
     @Override
-    public boolean renderComparision(final View view, ImageContainer im2, ArrayList<MyDMatch> matches) {
-        if (!hasImageToDraw() || !im2.hasImageToDraw()) return false;
+    public Bitmap renderComparision(ImageContainer im2, ArrayList<MyDMatch> matches) {
+        if (!hasImageToDraw() || !im2.hasImageToDraw()) return null;
         Mat drawMat = new Mat();
 
         List<DMatch> dMatches = new ArrayList<DMatch>();
@@ -103,16 +93,7 @@ public class MyMat extends Mat implements ImageContainer {
         Bitmap img = Bitmap.createBitmap(drawMat.cols(),drawMat.rows(),Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(drawMat,img);
         drawMat.release();
-        final Bitmap img_draw = img;
-        img.recycle();
-
-        view.post(new Runnable() {
-            @Override
-            public void run() {
-                ((ImageView) view).setImageBitmap(img_draw);
-            }
-        });
-        return true;
+        return  img;
     }
 
     @Override

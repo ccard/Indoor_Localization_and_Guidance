@@ -1,6 +1,7 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Descriptor;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,12 +19,31 @@ import java.util.Iterator;
 public class XMLparser {
 
     static final String xml_header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+    public enum DESCRIPTORS{
+        ORB("Feature2D.ORB"), LSH("FLANN_INDEX_LSH");
+    private String val;
+        DESCRIPTORS(String v){
+            val = v;
+        }
+        public String val(){
+            return val;
+        }
 
-    public static String build_XML(JSONObject j){
+    };
+
+    public static String build_XML(JSONObject j,DESCRIPTORS d){
         StringBuilder xml = new StringBuilder();
         xml.append(xml_header+"\n");
-
+        xml.append("<opencv_storage>\n");
+        if(d.val() == DESCRIPTORS.LSH.val()){
+            xml.append("<indexParams>\n");
+        }
+        xml.append("<name>"+d.val()+"</name>");
         xml.append(build_helper(j));
+        if(d.val() == DESCRIPTORS.LSH.val()){
+            xml.append("</indexParams>\n");
+        }
+        xml.append("</opencv_storage>\n");
 
         return xml.toString();
     }

@@ -1,5 +1,6 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.util.Pair;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
@@ -12,7 +13,10 @@ import org.opencv.core.*;
 import org.opencv.features2d.DMatch;
 import org.opencv.features2d.DescriptorMatcher;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -29,6 +33,19 @@ public class LSHMatcher implements Matcher {
 
     public LSHMatcher(Context context){
         matcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
+        try {
+            File i = File.createTempFile("test",".xml",context.getCacheDir());
+            matcher.write(i.getPath());
+            BufferedReader r = new BufferedReader(new FileReader(i));
+            StringBuilder s = new StringBuilder();
+            String v = "";
+            while((v = r.readLine()) != null){
+                s.append(v);
+            }
+            new AlertDialog.Builder(context).setMessage(s.toString()).create().show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.context = context;
     }
 
@@ -315,7 +332,7 @@ public class LSHMatcher implements Matcher {
 
     @Override
     public void setTrainingParams(JSONObject params) {
-        String xml = XMLparser.build_XML(params);
+        String xml = XMLparser.build_XML(params, XMLparser.DESCRIPTORS.LSH);
         File outFile = XMLparser.createXMLFile("LSHParams",xml,context);
         matcher.read(outFile.getPath());
         hasParams = true;

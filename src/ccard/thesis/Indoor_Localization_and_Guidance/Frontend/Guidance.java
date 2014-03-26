@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.ComputationManager;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.MyMat;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
 import org.opencv.android.BaseLoaderCallback;
 
@@ -15,7 +16,7 @@ import org.opencv.android.BaseLoaderCallback;
 public class Guidance extends Activity {
 
 
-    private AsyncTask<Integer,View,Integer> comp;
+    private AsyncTask<Integer,MyMat,Integer> comp;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.guidance_view);
@@ -25,6 +26,7 @@ public class Guidance extends Activity {
 
     @Override
     public void onResume(){
+        super.onResume();
         //TODO: move this to another method
         if(comp == null) {
             comp = new ComputationManager(this).execute(1);
@@ -35,6 +37,7 @@ public class Guidance extends Activity {
 
     @Override
     public void onPause(){
+        super.onPause();
         comp.cancel(true);
     }
 

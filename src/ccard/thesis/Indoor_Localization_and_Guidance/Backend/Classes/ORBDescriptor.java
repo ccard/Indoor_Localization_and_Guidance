@@ -72,7 +72,7 @@ public class ORBDescriptor implements Descriptor {
     @Override
     public boolean initDescriptor(JSONObject params,Context context) {
         detect = FeatureDetector.create(FeatureDetector.ORB);
-        String xml = XMLparser.build_XML(params);
+        String xml = XMLparser.build_XML(params, XMLparser.DESCRIPTORS.ORB);
         File outFile = XMLparser.createXMLFile("ORBParams",xml,context);
         detect.read(outFile.getPath());
         return true;

@@ -3,6 +3,7 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.view.View;
@@ -12,6 +13,7 @@ import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.*;
 import ccard.thesis.Indoor_Localization_and_Guidance.Frontend.MyActivity;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
 import org.json.JSONObject;
+import org.opencv.android.Utils;
 import org.opencv.core.Size;
 
 import java.util.HashMap;
@@ -22,7 +24,7 @@ import java.util.Map;
  * This class manages the management and computation so that the
  * GUI thread remains free for other tasks
  */
-public class ComputationManager extends AsyncTask<Integer,View,Integer> {
+public class ComputationManager extends AsyncTask<Integer,MyMat,Integer> {
 
     private Context context;
     private ImageCapture capture;
@@ -54,9 +56,9 @@ public class ComputationManager extends AsyncTask<Integer,View,Integer> {
             capture = new CameraCapture(context,new Size(400,400));
         }
         descriptor = new ORBDescriptor();
-        matcher = new LSHMatcher(context);
+       // matcher = new LSHMatcher(context);
         descriptor.initDescriptor(params.get(DataBase.ParamReturn.Descriptor),context);
-        matcher.setTrainingParams(params.get(DataBase.ParamReturn.Matcher));
+//        matcher.setTrainingParams(params.get(DataBase.ParamReturn.Matcher));
         pv = new LocalImageProvider();
         pv.setDatabase(db);
 
@@ -92,8 +94,9 @@ public class ComputationManager extends AsyncTask<Integer,View,Integer> {
         if (capture.open()) {
             while (run){
                 MyMat query = capture.capture();
-                query.calcDescriptor(descriptor);
-                postImage(query,true);
+                //query.calcDescriptor(descriptor);
+                //postImage(query,false);
+                publishProgress(query);
             }
         } else {
             run = false;
@@ -102,9 +105,19 @@ public class ComputationManager extends AsyncTask<Integer,View,Integer> {
         return 1;
     }
 
+
     @Override
     protected void onPostExecute(Integer res){
         capture.close();
         run = false;
+    }
+
+    @Override
+    protected void onProgressUpdate(MyMat... values) {
+        super.onProgressUpdate(values);
+        MyMat drawMat = values[0];
+        Bitmap img = Bitmap.createBitmap(drawMat.cols(),drawMat.rows(),Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(drawMat, img);
+        view.setImageBitmap(img);
     }
 }

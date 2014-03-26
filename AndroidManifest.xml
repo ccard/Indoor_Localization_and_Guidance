@@ -20,7 +20,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".Frontend.Guidance"/>
-        <activity android:name=".Frontend.SettingsAct"/>
         <service android:name=".Backend.Classes.DataBaseConnection"/>
     </application>
 </manifest>

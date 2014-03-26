@@ -1,7 +1,6 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,8 +37,9 @@ public class MyActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.settings:
-                Intent i = new Intent(this,SettingsAct.class);
-                startActivity(i);
+
+                getFragmentManager().beginTransaction().show(new Preferences()).commit();
+                        //.replace(android.R.id.content, new Preferences()).commit();
                 return true;
         }
         return true;

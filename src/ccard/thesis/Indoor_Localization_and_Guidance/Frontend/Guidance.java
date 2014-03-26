@@ -6,12 +6,15 @@ import android.os.Bundle;
 import android.view.View;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.ComputationManager;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
+import org.opencv.android.BaseLoaderCallback;
 
 /**
  * Created by Ch on 3/19/14.
  * This Class displays the guidance for the user
  */
 public class Guidance extends Activity {
+
+
     private AsyncTask<Integer,View,Integer> comp;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

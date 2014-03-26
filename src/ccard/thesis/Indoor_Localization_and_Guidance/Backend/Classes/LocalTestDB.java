@@ -71,6 +71,6 @@ public class LocalTestDB implements DataBase {
                 break;
         }
 
-        return null;
+        return params;
     }
 }

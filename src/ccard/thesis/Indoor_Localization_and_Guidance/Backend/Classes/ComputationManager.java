@@ -93,14 +93,15 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
                 query.calcDescriptor(descriptor);
                 //postImage(query,false);
                 publishProgress(query.render(true));
+                if(isCancelled()) break;
             }
+            capture.close();
         } else {
             run = false;
         }
 
         return 1;
     }
-
 
     @Override
     protected void onPostExecute(Integer res){

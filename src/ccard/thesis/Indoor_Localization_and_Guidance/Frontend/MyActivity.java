@@ -48,8 +48,8 @@ public class MyActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.settings:
-                getFragmentManager().beginTransaction()
-                        .replace(android.R.id.content, new Preferences()).commit();
+                Intent i = new Intent(this,SettingsDialog.class);
+                startActivity(i);
                 return true;
         }
         return true;

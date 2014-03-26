@@ -9,12 +9,14 @@
         android:title="Device Camera"
         android:defaultValue="true"
         android:persistent="true"
+        android:disableDependentsState="true"
         />
     <CheckBoxPreference
         android:key="bluetooth_input"
         android:title="Bluetooth Device"
         android:defaultValue="false"
-        android:persistent="true"/>
+        android:persistent="true"
+        android:dependency="camera_input"/>
     <PreferenceScreen
         android:key="blue_tooth_devices"
         android:title="Select Bluetooth devices"

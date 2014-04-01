@@ -6,6 +6,7 @@ import android.util.Pair;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageProvidor;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Matcher;
+import ccard.thesis.Indoor_Localization_and_Guidance.JNI_Interface.LSH_Wrapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opencv.calib3d.Calib3d;
@@ -24,7 +25,8 @@ import java.util.*;
  */
 public class LSHMatcher implements Matcher {
 
-    private DescriptorMatcher matcher;
+//    private DescriptorMatcher matcher;
+    private LSH_Wrapper matcher;
     private Context context;
     private boolean hasParams;
     //This stores the location of the image in the training list
@@ -32,8 +34,8 @@ public class LSHMatcher implements Matcher {
     Map<Integer,Integer> trainingKeyToDbKey;
 
     public LSHMatcher(Context context){
-        matcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
-        try {
+//        matcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
+        /*try {
             File i = File.createTempFile("test",".xml",context.getCacheDir());
             matcher.write(i.getPath());
             BufferedReader r = new BufferedReader(new FileReader(i));
@@ -45,22 +47,23 @@ public class LSHMatcher implements Matcher {
             new AlertDialog.Builder(context).setMessage(s.toString()).create().show();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
+
         this.context = context;
     }
 
     @Override
     public boolean train(ImageProvidor db) {
         if (!hasParams) return false;
-        matcher.add(getDescriptors(db));
-        matcher.train();
-        return false;
+        matcher.addImages(getDescriptors(db));
+        matcher.trainMatcher();
+        return true;
     }
 
     @Override
     public ArrayList<ArrayList<DMatch>> match(JSONObject params, ImageContainer query) {
         if(!params.has("Type")) return null;
-        ArrayList<MatOfDMatch> matches = new ArrayList<MatOfDMatch>();
+        ArrayList<ArrayList<DMatch>> matches = new ArrayList<ArrayList<DMatch>>();
         try {
             if((MatchingType)params.get("Type") == MatchingType.LSH){
                 int k = 5;
@@ -70,20 +73,13 @@ public class LSHMatcher implements Matcher {
                 k = params.getInt("k");
                 compactres = params.getBoolean("compactResults");
 
-                matcher.knnMatch(query.getDescriptor(),matches,k,masks,compactres);
+                matches = matcher.match(query.getDescriptor(),k,compactres);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        if (matches.isEmpty()) return null;
-
-        ArrayList<ArrayList<DMatch>> match = new ArrayList<ArrayList<DMatch>>(matches.size());
-
-        for(int i = 0; i < matches.size(); i++){
-            match.add(i,new ArrayList<DMatch>(matches.get(i).toList()));
-        }
-        return match;
+        return (!matches.isEmpty() ? matches : null);
     }
 
     @Override
@@ -332,9 +328,24 @@ public class LSHMatcher implements Matcher {
 
     @Override
     public void setTrainingParams(JSONObject params) {
-        String xml = XMLparser.build_XML(params, XMLparser.DESCRIPTORS.LSH);
-        File outFile = XMLparser.createXMLFile("LSHParams",xml,context);
-        matcher.read(outFile.getPath());
+        int num_tables = -1;
+        int key_size = -1;
+        int probe_level = -1;
+        try {
+           num_tables = params.getInt("table_number");
+           key_size = params.getInt("key_size");
+           probe_level = params.getInt("multi_probe_level");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if (num_tables < 0 || key_size < 0 || probe_level < 0){
+            num_tables = 30;
+            key_size = 20;
+            probe_level = 2;
+        }
+
+        matcher = new LSH_Wrapper(num_tables,key_size,probe_level);
         hasParams = true;
     }
 

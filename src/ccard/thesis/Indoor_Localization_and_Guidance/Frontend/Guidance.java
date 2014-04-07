@@ -27,14 +27,14 @@ public class Guidance extends Activity {
 
     @Override
     public void onResume(){
-
+        super.onResume();
         //TODO: move this to another method
         if(comp == null) {
             comp = new ComputationManager(this).execute(1);
         } else if (comp.isCancelled()) {
             comp = new ComputationManager(this).execute(1);
         }
-        super.onResume();
+
     }
 
     @Override

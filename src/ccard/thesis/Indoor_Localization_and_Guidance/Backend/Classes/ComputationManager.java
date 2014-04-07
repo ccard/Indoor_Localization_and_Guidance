@@ -51,6 +51,7 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
         db = new LocalTestDB();
         Map<DataBase.ParamReturn, JSONObject> params = getParams();
         res = new ResReceiver(new Handler());
+        boolean use_device_camera = prefs.getBoolean("device_camera",false);
         if(prefs.getBoolean("device_camera",true)){
             capture = new CameraCapture(context,new Size(400,400));
         } else {
@@ -58,9 +59,9 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
             capture = new CameraCapture(context,new Size(400,400));
         }
         descriptor = new ORBDescriptor();
-       // matcher = new LSHMatcher(context);
+        matcher = new BFMatcher(context);
         descriptor.initDescriptor(params.get(DataBase.ParamReturn.Descriptor),context);
-//        matcher.setTrainingParams(params.get(DataBase.ParamReturn.Matcher));
+        matcher.setTrainingParams(params.get(DataBase.ParamReturn.Matcher));
         pv = new LocalImageProvider();
         pv.setDatabase(db);
 

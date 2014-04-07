@@ -1,20 +1,21 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
+import android.util.Pair;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageProvidor;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Matcher;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDMatch;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 import org.opencv.features2d.DMatch;
 import org.opencv.features2d.DescriptorMatcher;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Ch on 4/1/14.
@@ -67,7 +68,8 @@ public class BFMatcher implements Matcher {
     }
 
     @Override
-    public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query, double distanceThreshold, double inlierThreshold) {
+    public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query,
+                      double distanceThreshold, double inlierThreshold) {
 
         Map<Integer,ArrayList<MyDMatch>> image_matches = new HashMap<Integer, ArrayList<MyDMatch>>();
 
@@ -80,17 +82,96 @@ public class BFMatcher implements Matcher {
                         db.getImage(img_idx).getKeyPoint(dMatch.queryIdx));
 
                 if (image_matches.containsKey(img_idx)){
-
+                    image_matches.get(img_idx).add(temp_dm);
+                } else {
+                    ArrayList<MyDMatch> temp = new ArrayList<MyDMatch>();
+                    temp.add(temp_dm);
+                    image_matches.put(img_idx,temp);
                 }
             }
         }
 
-        return 0;
+        Set<Integer> to_del = new HashSet<Integer>();
+
+        for(Integer i : image_matches.keySet()){
+            if (image_matches.get(i).size() < inlierThreshold){
+                to_del.add(i);
+            }
+        }
+
+        for(Integer del : to_del){
+            image_matches.remove(del);
+        }
+
+        Map<Integer,Pair<Mat,List<Integer>>> fundamentals = buildFundamental(image_matches,distanceThreshold,0.99);
+
+        int best_match = 0, image = -1;
+        for(Integer fun : fundamentals.keySet()){
+            List<Integer> inliers = fundamentals.get(fun).second;
+            int sum = 0;
+            for(Integer s : inliers) sum += s;
+
+            if (best_match < sum){
+                best_match = sum;
+                image = (best_match >= inlierThreshold ? fun : -1);
+            }
+        }
+
+        return image;
     }
 
     @Override
     public void setTrainingParams(JSONObject params) {
 
+    }
+
+    /**
+     * This methods finds the fundamental matrix for each of the images
+     * @param images the images to find the fundimentals for
+     * @param distThreshold the max distance from the epipolar lines
+     * @param confidence the amount of confidence in the measure
+     * @return map of indecies to a pair of fundamental and inliers list
+     */
+    private Map<Integer,Pair<Mat,List<Integer>>> buildFundamental(Map<Integer,ArrayList<MyDMatch>> images,
+                                                                  double distThreshold, double confidence){
+        Map<Integer,Pair<Mat,List<Integer>>> fundamentals = new HashMap<Integer, Pair<Mat, List<Integer>>>();
+
+        for(Integer index : images.keySet()){
+            Pair<MatOfPoint2f,MatOfPoint2f> train_scene = buildTrainScene(images.get(index));
+            Mat inliers = new Mat();
+            Mat H = Calib3d.findFundamentalMat(train_scene.first, train_scene.second,
+                    Calib3d.FM_RANSAC, distThreshold, confidence,inliers);
+            List<Integer> liers = new ArrayList<Integer>();
+            for (int i = 0; i < inliers.cols(); i++){
+                for(int j = 0; j < inliers.rows(); j++){
+                    liers.add(inliers.get(i,j,new int[33]));
+                }
+            }
+
+            fundamentals.put(index,new Pair<Mat, List<Integer>>(H,liers));
+        }
+        return fundamentals;
+    }
+
+    /**
+     * This method builds the train and scene matofpoint2f and returns them as a pair
+     * @param matches the matches to build the matofpoint2f off of
+     * @return The pair of matofpoint2f where the first object of the pair is the training
+     * points and the second is the scene points
+     */
+    private Pair<MatOfPoint2f,MatOfPoint2f> buildTrainScene(ArrayList<MyDMatch> matches){
+        List<Point> train = new ArrayList<Point>();
+        List<Point> scene = new ArrayList<Point>();
+
+        for(MyDMatch dm : matches){
+            train.add(dm.getTrainkp().pt);
+            scene.add(dm.getQuerykp().pt);
+        }
+
+        MatOfPoint2f trainMat = new MatOfPoint2f(train.toArray(new Point[0]));
+        MatOfPoint2f sceneMat = new MatOfPoint2f(scene.toArray(new Point[0]));
+
+        return new Pair<MatOfPoint2f, MatOfPoint2f>(trainMat,sceneMat);
     }
 
     /**

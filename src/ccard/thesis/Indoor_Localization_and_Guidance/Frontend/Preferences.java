@@ -3,6 +3,7 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -19,15 +20,31 @@ public class Preferences extends PreferenceFragment implements SharedPreferences
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
+    }
 
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+    @Override
+    public void onResume(){
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause(){
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
     }
 
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key == "camera_input"){
-            sharedPreferences.edit().putBoolean("device_camera",true);
+        if (key.equals("camera_input")){
+            if (((CheckBoxPreference)(getPreferenceManager().findPreference("camera_input"))).isChecked()){
+                sharedPreferences.edit().putBoolean("device_camera",true);
+            } else {
+                sharedPreferences.edit().putBoolean("device_camera",false);
+            }
+            CheckBoxPreference c = (CheckBoxPreference)(getPreferenceManager().findPreference("bluetooth_input"));
+            c.setChecked(false);
         }
     }
 }

@@ -92,9 +92,12 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
                 MyMat query = capture.capture();
                 Mat rot = Imgproc.getRotationMatrix2D(new Point(query.rows()/2,query.cols()/2),90,1);
                 Imgproc.warpAffine(query,query,rot,query.size());
-                query.calcDescriptor(descriptor);
-                //postImage(query,false);
-                publishProgress(query.render(true));
+                if(query.calcDescriptor(descriptor)){
+                    publishProgress(query.render(true));
+                    //TODO: discriptor matching
+                } else {
+                    publishProgress(query.render(false));
+                }
                 if(isCancelled()) break;
             }
             capture.close();

@@ -1,6 +1,7 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageCapture;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
@@ -25,7 +26,8 @@ public class CameraCapture implements ImageCapture {
     @Override
     public boolean open(){
         if(camera == null || !camera.isOpened()){
-           camera = new VideoCapture(0);
+           camera = new VideoCapture((context.getPackageManager()
+                   .hasSystemFeature(PackageManager.FEATURE_CAMERA) ? 1 : 0));
            camera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH,cSize.width);
            camera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT,cSize.height);
         }

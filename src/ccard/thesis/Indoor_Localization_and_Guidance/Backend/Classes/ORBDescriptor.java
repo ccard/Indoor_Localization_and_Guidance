@@ -90,11 +90,15 @@ public class ORBDescriptor implements Descriptor {
         List<Mat> masks = new ArrayList<Mat>();
 
         //masks.add(mask);
-        detect.detect(images,keyPoint,masks);
-        des.compute(images,keyPoint,desc);
+        try{
+            detect.detect(images,keyPoint,masks);
+            des.compute(images,keyPoint,desc);
+            keyPoints = new ArrayList<KeyPoint>(keyPoint.get(0).toList());
+            descript = desc.get(0);
+        } catch (Exception e) {
+            return false;
+        }
 
-        keyPoints = new ArrayList<KeyPoint>(keyPoint.get(0).toList());
-        descript = desc.get(0);
 
         return true;
     }

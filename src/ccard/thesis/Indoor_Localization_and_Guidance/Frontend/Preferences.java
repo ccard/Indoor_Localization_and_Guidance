@@ -1,6 +1,7 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 
 import android.app.Fragment;
+import android.bluetooth.BluetoothAdapter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -38,10 +39,18 @@ public class Preferences extends PreferenceFragment implements SharedPreferences
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("camera_input")){
+            BluetoothAdapter ad = BluetoothAdapter.getDefaultAdapter();
             if (((CheckBoxPreference)(getPreferenceManager().findPreference("camera_input"))).isChecked()){
                 sharedPreferences.edit().putBoolean("device_camera",true).commit();
             } else {
                 sharedPreferences.edit().putBoolean("device_camera",false).commit();
+                if (ad != null) {
+                    if(!ad.isEnabled()){
+                        CheckBoxPreference c = (CheckBoxPreference)(getPreferenceManager().findPreference("bluetooth_input"));
+                        c.setEnabled(false);
+                        ((CheckBoxPreference)(getPreferenceManager().findPreference("camera_input"))).setChecked(true);
+                    }
+                }
             }
             CheckBoxPreference c = (CheckBoxPreference)(getPreferenceManager().findPreference("bluetooth_input"));
             c.setChecked(false);

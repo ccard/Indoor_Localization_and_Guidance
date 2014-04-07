@@ -39,9 +39,9 @@ public class Preferences extends PreferenceFragment implements SharedPreferences
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("camera_input")){
             if (((CheckBoxPreference)(getPreferenceManager().findPreference("camera_input"))).isChecked()){
-                sharedPreferences.edit().putBoolean("device_camera",true);
+                sharedPreferences.edit().putBoolean("device_camera",true).commit();
             } else {
-                sharedPreferences.edit().putBoolean("device_camera",false);
+                sharedPreferences.edit().putBoolean("device_camera",false).commit();
             }
             CheckBoxPreference c = (CheckBoxPreference)(getPreferenceManager().findPreference("bluetooth_input"));
             c.setChecked(false);

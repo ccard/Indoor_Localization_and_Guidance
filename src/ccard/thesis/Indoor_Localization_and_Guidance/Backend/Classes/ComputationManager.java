@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -47,12 +48,12 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
         ((FrameLayout)((Activity)context).getWindow()
                 .getDecorView().findViewById(R.id.ImageDisplay)).addView(view);
 
-        prefs = context.getSharedPreferences(MyActivity.PREFERENCES,0);
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
         db = new LocalTestDB();
         Map<DataBase.ParamReturn, JSONObject> params = getParams();
         res = new ResReceiver(new Handler());
-        boolean use_device_camera = prefs.getBoolean("device_camera",false);
-        if(prefs.getBoolean("device_camera",true)){
+
+        if(prefs.getBoolean("device_camera",false)){
             capture = new CameraCapture(context,new Size(400,400));
         } else {
             //TODO: replace with bluetooth or other device

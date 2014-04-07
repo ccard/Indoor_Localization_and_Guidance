@@ -29,4 +29,6 @@ proguard/
 .idea/
 
 # other files
-assets/*.jpg
+assets/*/*.jpg
+assets/*/*.txt
+assets/*.txt

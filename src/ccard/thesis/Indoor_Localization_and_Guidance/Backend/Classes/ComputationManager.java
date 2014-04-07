@@ -65,7 +65,7 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
         matcher.setTrainingParams(params.get(DataBase.ParamReturn.Matcher));
         pv = new LocalImageProvider();
         pv.setDatabase(db);
-
+        pv.requestImages(null,descriptor);
     }
 
     private Map<DataBase.ParamReturn,JSONObject> getParams(){

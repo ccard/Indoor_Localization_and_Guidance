@@ -4,8 +4,18 @@ import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.DataBase
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,7 +39,39 @@ public class LocalTestDB implements DataBase {
 
     @Override
     public Map<Integer, ImageContainer> getImages() throws DBError{
-        return null;
+        Map<Integer, ImageContainer> images = new HashMap<Integer, ImageContainer>();
+
+        ArrayList<String> files = new ArrayList<String>();
+
+        try {
+            BufferedReader in = new BufferedReader(new FileReader("image_locations.txt"));
+            String file;
+            while((file = in.readLine()) != null){
+                file += "/";
+                BufferedReader in2 = new BufferedReader(new FileReader(file+"images.txt"));
+                String file2;
+                while((file2 = in2.readLine()) != null){
+                    files.add(file+file2);
+                }
+                in2.close();
+            }
+            in.close();
+
+            int id = -1;
+            for(String i : files){
+                MyMat tmp = new MyMat();
+                Highgui.imread(i).copyTo(tmp);
+                Imgproc.resize(tmp,tmp,new Size(tmp.cols()/4,tmp.rows()/4));
+                images.put(id++,tmp);
+                tmp.release();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return images;
     }
 
     @Override

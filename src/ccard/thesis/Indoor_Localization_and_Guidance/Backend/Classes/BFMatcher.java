@@ -79,7 +79,7 @@ public class BFMatcher implements Matcher {
                 int img_idx = trainingKeyToDbKey.get(dMatch.imgIdx);
                 MyDMatch temp_dm = new MyDMatch(dMatch,img_idx,
                         db.getImage(img_idx).getKeyPoint(dMatch.trainIdx),
-                        db.getImage(img_idx).getKeyPoint(dMatch.queryIdx));
+                        query.getKeyPoint(dMatch.queryIdx));
 
                 if (image_matches.containsKey(img_idx)){
                     image_matches.get(img_idx).add(temp_dm);
@@ -146,11 +146,9 @@ public class BFMatcher implements Matcher {
             byte[] buff = new byte[size];
             inliers.get(0,0,buff);
 
-
             for(int i = 0; i < size; i++){
                 liers.add((buff[i] > 0) ? 1 : 0);
             }
-
 
             fundamentals.put(index,new Pair<Mat, List<Integer>>(H,liers));
         }

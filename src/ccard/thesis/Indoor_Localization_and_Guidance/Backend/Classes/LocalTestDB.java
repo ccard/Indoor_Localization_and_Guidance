@@ -1,5 +1,8 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.BitmapFactory;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.DataBase;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import org.json.JSONException;
@@ -10,10 +13,7 @@ import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,11 @@ import java.util.Map;
  * Created by Ch on 3/5/14.
  */
 public class LocalTestDB implements DataBase {
+
+    private Context context;
+    public LocalTestDB(Context context){
+        this.context = context;
+    }
     @Override
     public boolean openConnection() throws DBError {
         return false;
@@ -44,11 +49,15 @@ public class LocalTestDB implements DataBase {
         ArrayList<String> files = new ArrayList<String>();
 
         try {
-            BufferedReader in = new BufferedReader(new FileReader("image_locations.txt"));
+            AssetManager manager = context.getResources().getAssets();
+            InputStream is = null,is2 = null;
+            is = manager.open("image_locations.txt");
+            BufferedReader in = new BufferedReader(new InputStreamReader(is));
             String file;
             while((file = in.readLine()) != null){
                 file += "/";
-                BufferedReader in2 = new BufferedReader(new FileReader(file+"images.txt"));
+                is2 = manager.open(file+"images.txt");
+                BufferedReader in2 = new BufferedReader(new InputStreamReader(is2));
                 String file2;
                 while((file2 = in2.readLine()) != null){
                     files.add(file+file2);
@@ -56,19 +65,25 @@ public class LocalTestDB implements DataBase {
                 in2.close();
             }
             in.close();
-
-            int id = -1;
+            is.close();
+            is2.close();
+            is = null;
+            int id = 0;
             for(String i : files){
-                MyMat tmp = new MyMat();
-                Highgui.imread(i).copyTo(tmp);
-                Imgproc.resize(tmp,tmp,new Size(tmp.cols()/4,tmp.rows()/4));
-                images.put(id++,tmp);
+                is = manager.open(i);
+                MyMat tmp = new MyMat(BitmapFactory.decodeStream(is));
+
+                Imgproc.resize(tmp, tmp, new Size(tmp.cols() / 4, tmp.rows() / 4));
+                images.put(id++,new MyMat(tmp));
                 tmp.release();
             }
+            is.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            DBError dbError = new DBError("File not found",e);
+            throw dbError;
         } catch (IOException e){
-            e.printStackTrace();
+            DBError dbError = new DBError("IO error",e);
+            throw dbError;
         }
 
         return images;

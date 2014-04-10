@@ -29,6 +29,9 @@ public class MyMat extends Mat implements ImageContainer {
     public MyMat(){
 
     }
+    public MyMat(MyMat other){
+        other.copyTo(this);
+    }
     public MyMat(Bitmap img){
         Utils.bitmapToMat(img,this);
     }

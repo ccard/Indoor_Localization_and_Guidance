@@ -10,15 +10,19 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.*;
 import ccard.thesis.Indoor_Localization_and_Guidance.Frontend.MyActivity;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.opencv.android.Utils;
 import org.opencv.core.*;
+import org.opencv.features2d.DMatch;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,8 +43,11 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
     private boolean run;
     private SharedPreferences prefs;
     private ImageView view;
+    private JSONObject matchParams;
 
     public ComputationManager(Context cont){
+        //TODO: Put progress loader in so user doesn't see blank screen
+        //TODO: put loading into thread so does hog the gui
         context = cont;
         run = true;
 
@@ -49,7 +56,7 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
                 .getDecorView().findViewById(R.id.ImageDisplay)).addView(view);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        db = new LocalTestDB();
+        db = new LocalTestDB(context);
         Map<DataBase.ParamReturn, JSONObject> params = getParams();
         res = new ResReceiver(new Handler());
 
@@ -66,6 +73,15 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
         pv = new LocalImageProvider();
         pv.setDatabase(db);
         pv.requestImages(null,descriptor);
+
+        matchParams = new JSONObject();
+        try {
+            matchParams.put("Type", Matcher.MatchingType.BruteForce);
+            matchParams.put("k",5);
+            matchParams.put("compactResults",false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private Map<DataBase.ParamReturn,JSONObject> getParams(){
@@ -86,19 +102,22 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
 
     @Override
     protected Integer doInBackground(Integer... params) {
-
+        matcher.train(pv);
         if (capture.open()) {
             while (run){
+                if(isCancelled()) break;
                 MyMat query = capture.capture();
                 Mat rot = Imgproc.getRotationMatrix2D(new Point(query.rows()/2,query.cols()/2),90,1);
                 Imgproc.warpAffine(query,query,rot,query.size());
                 if(query.calcDescriptor(descriptor)){
                     publishProgress(query.render(true));
-                    //TODO: discriptor matching
+                    ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
+                    if (null == matches) continue;
+                    int choice = matcher.verify(matches,pv,query,1.5,17);
+                    Toast.makeText(context,"found: "+choice,5000).show();
                 } else {
                     publishProgress(query.render(false));
                 }
-                if(isCancelled()) break;
             }
             capture.close();
         } else {
@@ -110,7 +129,6 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
 
     @Override
     protected void onPostExecute(Integer res){
-        capture.close();
         run = false;
     }
 

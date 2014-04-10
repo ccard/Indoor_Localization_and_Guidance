@@ -8,6 +8,7 @@ import android.view.View;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.ComputationManager;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.MyMat;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
+import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 
 /**
@@ -17,7 +18,7 @@ import org.opencv.android.BaseLoaderCallback;
 public class Guidance extends Activity {
 
 
-    private AsyncTask<Integer,Bitmap,Integer> comp;
+    private AsyncTask<Integer,JSONObject,Integer> comp;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.guidance_view);

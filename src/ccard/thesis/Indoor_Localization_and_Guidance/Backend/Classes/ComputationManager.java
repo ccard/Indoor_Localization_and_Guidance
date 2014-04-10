@@ -31,7 +31,7 @@ import java.util.Map;
  * This class manages the management and computation so that the
  * GUI thread remains free for other tasks
  */
-public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
+public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
 
     private Context context;
     private ImageCapture capture;
@@ -48,6 +48,7 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
     public ComputationManager(Context cont){
         //TODO: Put progress loader in so user doesn't see blank screen
         //TODO: put loading into thread so does hog the gui
+        //TODO: gabage collect variables to avoid using too much memory
         context = cont;
         run = true;
 
@@ -100,6 +101,39 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
         return params;
     }
 
+    private JSONObject formRender(Bitmap img){
+        JSONObject j = new JSONObject();
+        try {
+            j.put("Type",1);
+            j.put("Data",img);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return j;
+    }
+
+    private JSONObject formProgress(boolean startStop){
+        JSONObject j = new JSONObject();
+        try {
+            j.put("Type",2);
+            j.put("Data",startStop);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return j;
+    }
+
+    private JSONObject formToast(String message){
+        JSONObject j = new JSONObject();
+        try {
+            j.put("Type",3);
+            j.put("Data",message);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return j;
+    }
+
     @Override
     protected Integer doInBackground(Integer... params) {
         matcher.train(pv);
@@ -110,13 +144,13 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
                 Mat rot = Imgproc.getRotationMatrix2D(new Point(query.rows()/2,query.cols()/2),90,1);
                 Imgproc.warpAffine(query,query,rot,query.size());
                 if(query.calcDescriptor(descriptor)){
-                    publishProgress(query.render(true));
+                    publishProgress(formRender(query.render(true)));
                     ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
                     if (null == matches) continue;
                     int choice = matcher.verify(matches,pv,query,1.5,17);
-                    Toast.makeText(context,"found: "+choice,5000).show();
+                    publishProgress(formToast("Chosen: "+choice));
                 } else {
-                    publishProgress(query.render(false));
+                    publishProgress(formRender(query.render(false)));
                 }
             }
             capture.close();
@@ -133,9 +167,29 @@ public class ComputationManager extends AsyncTask<Integer,Bitmap,Integer> {
     }
 
     @Override
-    protected void onProgressUpdate(Bitmap... values) {
+    protected void onProgressUpdate(JSONObject... values) {
         super.onProgressUpdate(values);
-        Bitmap drawMat = values[0];
-        view.setImageBitmap(drawMat);
+        JSONObject data = values[0];
+        try {
+            switch (data.getInt("Type")){
+                case 1:
+                    Bitmap img = (Bitmap)data.get("Data");
+                    view.setImageBitmap(img);
+                    break;
+                case 2:
+                    if (data.getBoolean("Data")){
+                        //TODO: do something
+                    } else {
+                        //TODO: do something
+                    }
+                    break;
+                case 3:
+                    Toast.makeText(context,data.getString("Data"),5000).show();
+                    break;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }

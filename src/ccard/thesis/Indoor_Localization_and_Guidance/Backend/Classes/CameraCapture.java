@@ -2,10 +2,15 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.util.DisplayMetrics;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageCapture;
+import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
+
+import java.util.List;
 
 /**
  * Created by Chris Card on 3/3/14.
@@ -28,6 +33,22 @@ public class CameraCapture implements ImageCapture {
         if(camera == null || !camera.isOpened()){
            camera = new VideoCapture((context.getPackageManager()
                    .hasSystemFeature(PackageManager.FEATURE_CAMERA) ? 1 : 0));
+
+           if (cSize.width < 0 && cSize.height < 0){
+               List<Size> sizes = camera.getSupportedPreviewSizes();
+               DisplayMetrics dis = context.getResources().getDisplayMetrics();
+               Size largest = sizes.get(sizes.size()-1);
+               double dis_dist = 1000000;
+               /*for (Size s : sizes){
+                   double temp_dis = Math.abs(dis.widthPixels-s.height);
+
+                   if(temp_dis < dis_dist){
+                       largest = s;
+                       dis_dist = temp_dis;
+                   }
+               }*/
+               cSize = largest;
+           }
            camera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH,cSize.width);
            camera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT,cSize.height);
         }
@@ -46,10 +67,15 @@ public class CameraCapture implements ImageCapture {
         if(!camera.isOpened()) return null;
         MyMat ret = new MyMat();
         boolean grabbed;
+        int loop_count = 0;
         do {
             grabbed = camera.grab();
-        } while(!grabbed);
+            loop_count++;
+        } while(!grabbed && loop_count < 20);
 
+        if (!grabbed && loop_count >= 20){
+            return null;
+        }
         camera.retrieve(ret,Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
         return ret;
     }

@@ -45,6 +45,8 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
     private ImageView view;
     private JSONObject matchParams;
 
+    private Bitmap disp;
+
     public ComputationManager(Context cont){
         //TODO: Put progress loader in so user doesn't see blank screen
         //TODO: put loading into thread so does hog the gui
@@ -62,7 +64,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         res = new ResReceiver(new Handler());
 
         if(prefs.getBoolean("device_camera",false)){
-            capture = new CameraCapture(context,new Size(400,400));
+            capture = new CameraCapture(context,new Size(-1,-1));
         } else {
             //TODO: replace with bluetooth or other device
             capture = new CameraCapture(context,new Size(400,400));
@@ -73,7 +75,6 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         matcher.setTrainingParams(params.get(DataBase.ParamReturn.Matcher));
         pv = new LocalImageProvider();
         pv.setDatabase(db);
-        pv.requestImages(null,descriptor);
 
         matchParams = new JSONObject();
         try {
@@ -105,7 +106,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         JSONObject j = new JSONObject();
         try {
             j.put("Type",1);
-            j.put("Data",img);
+            //j.put("Data",img);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -136,19 +137,24 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
 
     @Override
     protected Integer doInBackground(Integer... params) {
-        matcher.train(pv);
+        //publishProgress(formProgress(true));
+        //pv.requestImages(null,descriptor);
+        //matcher.train(pv);
+        //publishProgress(formProgress(false));
         if (capture.open()) {
             while (run){
                 if(isCancelled()) break;
                 MyMat query = capture.capture();
+                if (query == null) continue;
                 Mat rot = Imgproc.getRotationMatrix2D(new Point(query.rows()/2,query.cols()/2),90,1);
                 Imgproc.warpAffine(query,query,rot,query.size());
                 if(query.calcDescriptor(descriptor)){
-                    publishProgress(formRender(query.render(true)));
-                    ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
+                    disp = query.render(true);
+                    publishProgress(formRender(disp));
+                    /*ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
                     if (null == matches) continue;
                     int choice = matcher.verify(matches,pv,query,1.5,17);
-                    publishProgress(formToast("Chosen: "+choice));
+                    publishProgress(formToast("Chosen: "+choice));*/
                 } else {
                     publishProgress(formRender(query.render(false)));
                 }
@@ -173,8 +179,9 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         try {
             switch (data.getInt("Type")){
                 case 1:
-                    Bitmap img = (Bitmap)data.get("Data");
-                    view.setImageBitmap(img);
+                    //Bitmap img = (Bitmap)data.get("Data");
+                    if (null == disp) break;
+                    view.setImageBitmap(disp);
                     break;
                 case 2:
                     if (data.getBoolean("Data")){

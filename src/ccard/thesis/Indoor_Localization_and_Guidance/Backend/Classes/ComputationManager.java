@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -180,7 +182,8 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
                 case 1:
                     //Bitmap img = (Bitmap)data.get("Data");
                     if (null == disp) break;
-                    view.setImageBitmap(disp);
+                    //view.setImageBitmap(disp);
+                    view.setBackground(new BitmapDrawable(context.getResources(),disp));
                     break;
                 case 2:
                     if (data.getBoolean("Data")){

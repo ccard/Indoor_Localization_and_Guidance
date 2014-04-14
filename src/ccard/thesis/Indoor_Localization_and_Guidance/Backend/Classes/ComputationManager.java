@@ -106,7 +106,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         JSONObject j = new JSONObject();
         try {
             j.put("Type",1);
-            //j.put("Data",img);
+            disp = img;
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -149,8 +149,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
                 Mat rot = Imgproc.getRotationMatrix2D(new Point(query.rows()/2,query.cols()/2),90,1);
                 Imgproc.warpAffine(query,query,rot,query.size());
                 if(query.calcDescriptor(descriptor)){
-                    disp = query.render(true);
-                    publishProgress(formRender(disp));
+                    publishProgress(formRender(query.render(true)));
                     /*ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
                     if (null == matches) continue;
                     int choice = matcher.verify(matches,pv,query,1.5,17);

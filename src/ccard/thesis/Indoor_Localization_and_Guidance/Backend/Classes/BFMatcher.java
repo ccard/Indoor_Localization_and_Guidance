@@ -156,6 +156,36 @@ public class BFMatcher implements Matcher {
     }
 
     /**
+     * This method builds homographies for each of the images and also gets the inliers of the
+     * images
+     * @param images The images to make the homographies for
+     * @param distThreshold The max projection error for points when RANSAC is calculating the homography
+     * @return a map from the db image index to the homography and the inlier list
+     */
+    private Map<Integer,Pair<Mat,List<Integer>>> buildHomography(Map<Integer,ArrayList<MyDMatch>> images,
+                                                                 double distThreshold){
+        Map<Integer,Pair<Mat,List<Integer>>> homographies = new HashMap<Integer, Pair<Mat, List<Integer>>>();
+
+        for(Integer index : images.keySet()){
+            Pair<MatOfPoint2f,MatOfPoint2f> train_scene = buildTrainScene(images.get(index));
+            Mat inliers = new Mat();
+            Mat H = Calib3d.findHomography(train_scene.first, train_scene.second,
+                    Calib3d.FM_RANSAC, distThreshold,inliers);
+            List<Integer> liers = new ArrayList<Integer>();
+            int size = (int)inliers.total()*inliers.channels();
+            byte[] buff = new byte[size];
+            inliers.get(0,0,buff);
+
+            for(int i = 0; i < size; i++){
+                liers.add((buff[i] > 0) ? 1 : 0);
+            }
+
+            homographies.put(index,new Pair<Mat, List<Integer>>(H,liers));
+        }
+        return homographies;
+    }
+
+    /**
      * This method builds the train and scene matofpoint2f and returns them as a pair
      * @param matches the matches to build the matofpoint2f off of
      * @return The pair of matofpoint2f where the first object of the pair is the training

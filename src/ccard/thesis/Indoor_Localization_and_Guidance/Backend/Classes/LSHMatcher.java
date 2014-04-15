@@ -151,13 +151,15 @@ public class LSHMatcher implements Matcher {
         for(Integer index : images.keySet()){
             Pair<MatOfPoint2f,MatOfPoint2f> train_scene = buildTrainScene(images.get(index));
             Mat inliers = new Mat();
-            Mat H = Calib3d.findHomography(train_scene.first,train_scene.second,Calib3d.FM_RANSAC,
-                    distThreshold,inliers);
+            Mat H = Calib3d.findHomography(train_scene.first, train_scene.second,
+                    Calib3d.FM_RANSAC, distThreshold,inliers);
             List<Integer> liers = new ArrayList<Integer>();
-            for (int i = 0; i < inliers.cols(); i++){
-                for(int j = 0; j < inliers.rows(); j++){
-                    liers.add(inliers.get(i,j,new int[33]));
-                }
+            int size = (int)inliers.total()*inliers.channels();
+            byte[] buff = new byte[size];
+            inliers.get(0,0,buff);
+
+            for(int i = 0; i < size; i++){
+                liers.add((buff[i] > 0) ? 1 : 0);
             }
 
             homographies.put(index,new Pair<Mat, List<Integer>>(H,liers));
@@ -179,13 +181,15 @@ public class LSHMatcher implements Matcher {
         for(Integer index : images.keySet()){
             Pair<MatOfPoint2f,MatOfPoint2f> train_scene = buildTrainScene(images.get(index));
             Mat inliers = new Mat();
-            Mat H = Calib3d.findFundamentalMat(train_scene.first,train_scene.second,
-                    Calib3d.FM_RANSAC,distThreshold,confidence,inliers);
+            Mat H = Calib3d.findFundamentalMat(train_scene.first, train_scene.second,
+                    Calib3d.FM_RANSAC, distThreshold, confidence,inliers);
             List<Integer> liers = new ArrayList<Integer>();
-            for (int i = 0; i < inliers.cols(); i++){
-                for(int j = 0; j < inliers.rows(); j++){
-                    liers.add(inliers.get(i,j,new int[33]));
-                }
+            int size = (int)inliers.total()*inliers.channels();
+            byte[] buff = new byte[size];
+            inliers.get(0,0,buff);
+
+            for(int i = 0; i < size; i++){
+                liers.add((buff[i] > 0) ? 1 : 0);
             }
 
             fundamentals.put(index,new Pair<Mat, List<Integer>>(H,liers));

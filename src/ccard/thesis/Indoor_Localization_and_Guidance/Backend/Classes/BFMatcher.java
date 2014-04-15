@@ -103,7 +103,8 @@ public class BFMatcher implements Matcher {
             image_matches.remove(del);
         }
 
-        Map<Integer,Pair<Mat,List<Integer>>> fundamentals = buildFundamental(image_matches,distanceThreshold,0.99);
+        Map<Integer,Pair<Mat,List<Integer>>> fundamentals = (true ? buildHomography(image_matches,distanceThreshold) :
+                buildFundamental(image_matches,distanceThreshold,0.99));
 
         int best_match = 0, image = -1;
         for(Integer fun : fundamentals.keySet()){

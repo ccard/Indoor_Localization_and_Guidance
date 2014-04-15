@@ -54,11 +54,12 @@ public class LocalImageProvider implements ImageProvidor {
 
     @Override
     public boolean hasImages() {
+        if (null == images) return false;
         return !images.isEmpty();
     }
 
     @Override
     public void release() {
-        images.clear();
+        if (images != null) images.clear();
     }
 }

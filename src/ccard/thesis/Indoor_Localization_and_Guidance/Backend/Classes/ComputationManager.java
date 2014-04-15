@@ -13,10 +13,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.*;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.*;
 import ccard.thesis.Indoor_Localization_and_Guidance.Frontend.MyActivity;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
@@ -49,19 +46,19 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
     private boolean run;
     private SharedPreferences prefs;
     private FrameLayout view;
+    private TextView textView;
     private JSONObject matchParams;
 
     private Bitmap disp;
     private ProgressDialog prog;
 
     public ComputationManager(Context cont){
-        //TODO: Put progress loader in so user doesn't see blank screen
-        //TODO: put loading into thread so does hog the gui
         //TODO: gabage collect variables to avoid using too much memory
         context = cont;
         run = true;
 
-        //view = new ImageView(context);
+        textView = ((TextView)((Activity)context).getWindow()
+                .getDecorView().findViewById(R.id.ShowLocation));
         view = ((FrameLayout)((Activity)context).getWindow()
                 .getDecorView().findViewById(R.id.ImageDisplay));
 
@@ -87,7 +84,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         try {
             matchParams.put("Type", Matcher.MatchingType.BruteForce);
             matchParams.put("k",5);
-            matchParams.put("compactResults",false);
+            matchParams.put("compactResults",true);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -131,7 +128,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         return j;
     }
 
-    private JSONObject formToast(String message){
+    private JSONObject formMessage(String message){
         JSONObject j = new JSONObject();
         try {
             j.put("Type",3);
@@ -144,10 +141,12 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
 
     @Override
     protected Integer doInBackground(Integer... params) {
-        publishProgress(formProgress(true));
-        pv.requestImages(null,descriptor);
-        matcher.train(pv);
-        publishProgress(formProgress(false));
+        if (!pv.hasImages()){
+            publishProgress(formProgress(true));
+            pv.requestImages(null,descriptor);
+            matcher.train(pv);
+            publishProgress(formProgress(false));
+        }
         if (capture.open()) {
             while (run){
                 if(isCancelled()) break;
@@ -156,10 +155,9 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
 
                 if(query.calcDescriptor(descriptor)){
                     publishProgress(formRender(query.render(true)));
-                    ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
-                    if (null == matches) continue;
-                    int choice = matcher.verify(matches,pv,query,1.5,17);
-                    publishProgress(formToast("Chosen: "+choice));
+                    int choice = localize(query);
+                    if (choice < 0) continue;
+                    publishProgress(formMessage("" + choice));
                 } else {
                     publishProgress(formRender(query.render(false)));
                 }
@@ -170,6 +168,12 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         }
 
         return 1;
+    }
+
+    private int localize(MyMat query){
+        ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
+        if (null == matches) return -1;
+        return matcher.verify(matches,pv,query,1.5,17);
     }
 
     @Override
@@ -195,7 +199,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
                     }
                     break;
                 case 3:
-                    Toast.makeText(context,data.getString("Data"),5000).show();
+                    textView.setText(data.getString("Data"));
                     break;
             }
         } catch (JSONException e) {

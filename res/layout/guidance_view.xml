@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal">
 
-    <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/ImageDisplay"
-            android:layout_weight="1">
+ <FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/ImageDisplay"
+    android:layout_weight="1">
 
-    </FrameLayout>
-
-</LinearLayout>
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  android:layout_gravity="bottom">
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="20px"
+                android:text="Location:"
+                android:background="#AA000000"
+                android:textColor="#ffffffff"/>
+        <TextView android:layout_width="fill_parent"
+                  android:layout_height="20px"
+                  android:id="@+id/ShowLocation"
+                  android:background="#AA000000"
+                  android:textColor="#ffffffff"/>
+    </LinearLayout>
+ </FrameLayout>

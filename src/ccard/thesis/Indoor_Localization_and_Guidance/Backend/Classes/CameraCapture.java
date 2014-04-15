@@ -5,10 +5,12 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.util.DisplayMetrics;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageCapture;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 
@@ -21,10 +23,12 @@ public class CameraCapture implements ImageCapture {
     private Context context;
     private VideoCapture camera;
     private Size cSize;
+    private DisplayMetrics dis;
 
     public CameraCapture(Context cont,Size cSize){
         context = cont;
         this.cSize = cSize;
+        dis = context.getResources().getDisplayMetrics();
     }
 
 
@@ -36,17 +40,8 @@ public class CameraCapture implements ImageCapture {
 
            if (cSize.width < 0 && cSize.height < 0){
                List<Size> sizes = camera.getSupportedPreviewSizes();
-               DisplayMetrics dis = context.getResources().getDisplayMetrics();
                Size largest = sizes.get(sizes.size()-1);
-               double dis_dist = 1000000;
-               /*for (Size s : sizes){
-                   double temp_dis = Math.abs(dis.widthPixels-s.height);
 
-                   if(temp_dis < dis_dist){
-                       largest = s;
-                       dis_dist = temp_dis;
-                   }
-               }*/
                cSize = largest;
            }
            camera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH,cSize.width);
@@ -77,6 +72,8 @@ public class CameraCapture implements ImageCapture {
             return null;
         }
         camera.retrieve(ret,Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
+        Core.transpose(ret,ret);
+        Core.flip(ret,ret,0);
         return ret;
     }
 }

@@ -1,6 +1,7 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -10,8 +11,11 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.*;
 import ccard.thesis.Indoor_Localization_and_Guidance.Frontend.MyActivity;
@@ -44,10 +48,11 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
     private ResReceiver res;
     private boolean run;
     private SharedPreferences prefs;
-    private ImageView view;
+    private FrameLayout view;
     private JSONObject matchParams;
 
     private Bitmap disp;
+    private ProgressDialog prog;
 
     public ComputationManager(Context cont){
         //TODO: Put progress loader in so user doesn't see blank screen
@@ -56,9 +61,9 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         context = cont;
         run = true;
 
-        view = new ImageView(context);
-        ((FrameLayout)((Activity)context).getWindow()
-                .getDecorView().findViewById(R.id.ImageDisplay)).addView(view);
+        //view = new ImageView(context);
+        view = ((FrameLayout)((Activity)context).getWindow()
+                .getDecorView().findViewById(R.id.ImageDisplay));
 
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         db = new LocalTestDB(context);
@@ -139,23 +144,22 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
 
     @Override
     protected Integer doInBackground(Integer... params) {
-        //publishProgress(formProgress(true));
-        //pv.requestImages(null,descriptor);
-        //matcher.train(pv);
-        //publishProgress(formProgress(false));
+        publishProgress(formProgress(true));
+        pv.requestImages(null,descriptor);
+        matcher.train(pv);
+        publishProgress(formProgress(false));
         if (capture.open()) {
             while (run){
                 if(isCancelled()) break;
                 MyMat query = capture.capture();
                 if (query == null) continue;
-                Mat rot = Imgproc.getRotationMatrix2D(new Point(query.rows()/2,query.cols()/2),90,1);
-                Imgproc.warpAffine(query,query,rot,query.size());
+
                 if(query.calcDescriptor(descriptor)){
                     publishProgress(formRender(query.render(true)));
-                    /*ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
+                    ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
                     if (null == matches) continue;
                     int choice = matcher.verify(matches,pv,query,1.5,17);
-                    publishProgress(formToast("Chosen: "+choice));*/
+                    publishProgress(formToast("Chosen: "+choice));
                 } else {
                     publishProgress(formRender(query.render(false)));
                 }
@@ -180,16 +184,14 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         try {
             switch (data.getInt("Type")){
                 case 1:
-                    //Bitmap img = (Bitmap)data.get("Data");
                     if (null == disp) break;
-                    //view.setImageBitmap(disp);
                     view.setBackground(new BitmapDrawable(context.getResources(),disp));
                     break;
                 case 2:
                     if (data.getBoolean("Data")){
-                        //TODO: do something
+                        prog = ProgressDialog.show(context,"Loading","Please wait",false);
                     } else {
-                        //TODO: do something
+                        prog.dismiss();
                     }
                     break;
                 case 3:

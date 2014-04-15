@@ -44,4 +44,15 @@ public interface ImageProvidor {
      */
     public void requestImages(JSONObject params, Descriptor descriptor);
 
+    /**
+     * This method determines if the provider needs to load images
+     * @return true if it has images false other wise
+     */
+    public boolean hasImages();
+
+    /**
+     * This method releases the images that it already has
+     */
+    public void release();
+
 }

@@ -51,4 +51,14 @@ public class LocalImageProvider implements ImageProvidor {
             dbError.printStackTrace();
         }
     }
+
+    @Override
+    public boolean hasImages() {
+        return !images.isEmpty();
+    }
+
+    @Override
+    public void release() {
+        images.clear();
+    }
 }

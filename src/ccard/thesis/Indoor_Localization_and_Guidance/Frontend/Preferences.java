@@ -1,15 +1,10 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 
-import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
 
 /**

@@ -1,15 +1,11 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.View;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.ComputationManager;
-import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.MyMat;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
 import org.json.JSONObject;
-import org.opencv.android.BaseLoaderCallback;
 
 /**
  * Created by Ch on 3/19/14.

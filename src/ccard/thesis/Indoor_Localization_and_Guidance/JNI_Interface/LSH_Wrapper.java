@@ -6,7 +6,6 @@ import org.opencv.features2d.DMatch;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Ch on 3/27/14.

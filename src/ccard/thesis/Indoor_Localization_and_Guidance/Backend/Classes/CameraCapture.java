@@ -2,15 +2,12 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
 import android.util.DisplayMetrics;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageCapture;
 import org.opencv.core.Core;
-import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
-import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 

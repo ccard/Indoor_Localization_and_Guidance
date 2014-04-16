@@ -1,7 +1,5 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces;
 
-import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
-import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageProvidor;
 import org.json.JSONObject;
 import org.opencv.features2d.DMatch;
 

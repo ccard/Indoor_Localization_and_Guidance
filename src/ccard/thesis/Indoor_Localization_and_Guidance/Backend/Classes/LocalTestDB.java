@@ -8,10 +8,7 @@ import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Descript
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.*;

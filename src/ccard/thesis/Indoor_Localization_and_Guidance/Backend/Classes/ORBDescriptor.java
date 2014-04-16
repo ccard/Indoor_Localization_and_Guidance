@@ -10,7 +10,6 @@ import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.KeyPoint;
 import org.opencv.imgproc.Imgproc;
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

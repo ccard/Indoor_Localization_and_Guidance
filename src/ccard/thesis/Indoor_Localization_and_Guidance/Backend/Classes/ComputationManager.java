@@ -222,7 +222,6 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
                 case 1:
                     if (null == disp) break;
                     view.setBackground(new BitmapDrawable(context.getResources(),disp));
-                    disp.recycle();
                     break;
                 case 2:
                     if (data.getBoolean("Data")){

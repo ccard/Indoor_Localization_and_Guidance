@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.BitmapFactory;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.DataBase;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Descriptor;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.ImageContainer;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,7 +44,7 @@ public class LocalTestDB implements DataBase {
     }
 
     @Override
-    public Map<Integer, ImageContainer> getImages() throws DBError{
+    public Map<Integer, ImageContainer> getImages(Descriptor des, boolean use_des) throws DBError{
         Map<Integer, ImageContainer> images = new HashMap<Integer, ImageContainer>();
 
         ArrayList<String> files = new ArrayList<String>();
@@ -73,9 +74,15 @@ public class LocalTestDB implements DataBase {
                 is = manager.open(i);
                 MyMat tmp = new MyMat(BitmapFactory.decodeStream(is));
 
-                Imgproc.resize(tmp, tmp, new Size(tmp.cols() / 4, tmp.rows() / 4));
-                images.put(id++,new MyMat(tmp));
-                tmp.release();
+                if (use_des){
+                    tmp.calcDescriptor(des);
+                    tmp.release();
+                    images.put(id++,tmp);
+                } else {
+                    Imgproc.resize(tmp, tmp, new Size(tmp.cols() / 2, tmp.rows() / 2));
+                    images.put(id++,new MyMat(tmp));
+                    tmp.release();
+                }
             }
             is.close();
         } catch (FileNotFoundException e) {
@@ -105,7 +112,7 @@ public class LocalTestDB implements DataBase {
                     .put("firstLevel",0)
                     .put("edgeThreshold",31)
                     .put("patchSize",31)
-                    .put("WTA_K",2)
+                    .put("WTA_K",3)
                     .put("scoreType",0)
                     .put("nFeatures",500);
                 } catch (JSONException e) {

@@ -42,11 +42,11 @@ public class LocalImageProvider implements ImageProvidor {
     @Override
     public void requestImages(JSONObject params, Descriptor descriptor) {
         try {
-            images = db.getImages();
+            images = db.getImages(descriptor,true);
 
-            for(Integer index : images.keySet()){
+            /*for(Integer index : images.keySet()){
                 images.get(index).calcDescriptor(descriptor);
-            }
+            }*/
         } catch (DBError dbError) {
             dbError.printStackTrace();
         }

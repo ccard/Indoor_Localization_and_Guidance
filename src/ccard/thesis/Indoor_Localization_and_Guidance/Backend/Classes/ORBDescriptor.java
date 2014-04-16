@@ -96,10 +96,17 @@ public class ORBDescriptor implements Descriptor {
             keyPoints = new ArrayList<KeyPoint>(keyPoint.get(0).toList());
             descript = desc.get(0);
         } catch (Exception e) {
+            gray.release();
+            images.clear();
+            keyPoint.clear();
+            desc.clear();
             return false;
         }
 
-
+        gray.release();
+        images.clear();
+        keyPoint.clear();
+        desc.clear();
         return true;
     }
 }

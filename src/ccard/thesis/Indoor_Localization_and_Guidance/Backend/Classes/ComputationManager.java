@@ -163,6 +163,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
                 }
             }
             capture.close();
+            pv.release();
         } else {
             run = false;
         }

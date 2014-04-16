@@ -102,6 +102,7 @@ public class BFMatcher implements Matcher {
         for(Integer del : to_del){
             image_matches.remove(del);
         }
+        to_del.clear();
 
         Map<Integer,Pair<Mat,List<Integer>>> fundamentals = (true ? buildHomography(image_matches,distanceThreshold) :
                 buildFundamental(image_matches,distanceThreshold,0.99));
@@ -117,7 +118,8 @@ public class BFMatcher implements Matcher {
                 image = (best_match >= inlierThreshold ? fun : -1);
             }
         }
-
+        image_matches.clear();
+        fundamentals.clear();
         return image;
     }
 
@@ -146,6 +148,7 @@ public class BFMatcher implements Matcher {
             int size = (int)inliers.total()*inliers.channels();
             byte[] buff = new byte[size];
             inliers.get(0,0,buff);
+            inliers.release();
 
             for(int i = 0; i < size; i++){
                 liers.add((buff[i] > 0) ? 1 : 0);
@@ -176,6 +179,7 @@ public class BFMatcher implements Matcher {
             int size = (int)inliers.total()*inliers.channels();
             byte[] buff = new byte[size];
             inliers.get(0,0,buff);
+            inliers.release();
 
             for(int i = 0; i < size; i++){
                 liers.add((buff[i] > 0) ? 1 : 0);

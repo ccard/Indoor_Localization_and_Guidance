@@ -84,7 +84,7 @@ public class LSHMatcher implements Matcher {
 
     @Override
     public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db,
-                      ImageContainer query, double distanceThreshold, double inlierThreshold) {
+                      ImageContainer query, double distanceThreshold, int inlierThreshold, int matchThreshold) {
         Map<Integer,ArrayList<MyDMatch>> images = filter(buildMatchMap(matches,db,query),20,0.6);
         Map<Integer,Pair<Mat,List<Integer>>> homographies = buildHomography(images,distanceThreshold);
 

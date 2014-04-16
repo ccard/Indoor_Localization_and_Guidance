@@ -44,7 +44,7 @@ public interface Matcher {
      * @return the index of the image
      */
     public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query,double distanceThreshold,
-                      double inlierThreshold);
+                      int inlierThreshold, int matchThreshold);
 
     /**
      * This method sets the params for training the matcher and must be called before train

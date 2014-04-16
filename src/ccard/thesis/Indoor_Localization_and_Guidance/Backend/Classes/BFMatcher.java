@@ -69,7 +69,7 @@ public class BFMatcher implements Matcher {
 
     @Override
     public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query,
-                      double distanceThreshold, double inlierThreshold) {
+                      double distanceThreshold, int inlierThreshold, int matchThreshold) {
 
         Map<Integer,ArrayList<MyDMatch>> image_matches = new HashMap<Integer, ArrayList<MyDMatch>>();
 
@@ -94,7 +94,7 @@ public class BFMatcher implements Matcher {
         Set<Integer> to_del = new HashSet<Integer>();
 
         for(Integer i : image_matches.keySet()){
-            if (image_matches.get(i).size() < inlierThreshold){
+            if (image_matches.get(i).size() < matchThreshold){
                 to_del.add(i);
             }
         }

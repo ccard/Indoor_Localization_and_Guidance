@@ -173,7 +173,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
     private int localize(MyMat query){
         ArrayList<ArrayList<DMatch>> matches = matcher.match(matchParams,query);
         if (null == matches) return -1;
-        return matcher.verify(matches,pv,query,1.5,17);
+        return matcher.verify(matches,pv,query,1.5,20,45);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
-import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Descriptor;
 import org.json.JSONException;
 import org.json.JSONObject;
 

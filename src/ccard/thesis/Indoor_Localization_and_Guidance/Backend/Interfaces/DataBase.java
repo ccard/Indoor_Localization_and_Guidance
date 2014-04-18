@@ -42,7 +42,7 @@ public interface DataBase extends Serializable{
      * This method returns the images gotten from the database
      * @return the list of images
      */
-    public Map<Integer,ImageContainer> getImages() throws DBError;
+    public Map<Integer,ImageContainer> getImages(Descriptor des, boolean use_des) throws DBError;
 
     /**
      * Returns the path to follow

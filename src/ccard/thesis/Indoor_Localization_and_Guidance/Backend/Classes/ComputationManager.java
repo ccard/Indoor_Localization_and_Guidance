@@ -6,24 +6,17 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.*;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.*;
-import ccard.thesis.Indoor_Localization_and_Guidance.Frontend.MyActivity;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.opencv.android.Utils;
-import org.opencv.core.*;
+import org.opencv.core.Size;
 import org.opencv.features2d.DMatch;
-import org.opencv.highgui.Highgui;
-import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,28 +50,65 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         context = cont;
         run = true;
 
+        /*
+        * The initialization sequence must happen in the following order:
+        * 1. initGuiComp - initializes the values from the gui part of the program
+        * 2. initDbInterface - initializes the image providers and the db
+        * 3. initCapture - initialize the capture device
+        * 4. initImageProcessing - initalizes the objects that will perform image processing
+        */
+        initGuiComp();
+
+        initDbInterface();
+
+        initCapture();
+
+        initImageProcessing(getParams());
+    }
+
+    /**
+     * Initializes gui components that are used
+     */
+    private void initGuiComp(){
         textView = ((TextView)((Activity)context).getWindow()
                 .getDecorView().findViewById(R.id.ShowLocation));
         view = ((FrameLayout)((Activity)context).getWindow()
                 .getDecorView().findViewById(R.id.ImageDisplay));
 
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        db = new LocalTestDB(context);
-        Map<DataBase.ParamReturn, JSONObject> params = getParams();
-        res = new ResReceiver(new Handler());
+    }
 
+    /**
+     * This initializes components that interact with the database
+     */
+    private void initDbInterface(){
+        db = new LocalTestDB(context);
+        pv = new LocalImageProvider();
+        pv.setDatabase(db);
+        res = new ResReceiver(new Handler());
+    }
+
+    /**
+     * This initializes the capture devices
+     */
+    private void initCapture(){
         if(prefs.getBoolean("device_camera",false)){
             capture = new CameraCapture(context,new Size(-1,-1));
         } else {
             //TODO: replace with bluetooth or other device
             capture = new CameraCapture(context,new Size(400,400));
         }
+    }
+
+    /**
+     * This initializes the image processing components
+     * @param params
+     */
+    private void initImageProcessing(Map<DataBase.ParamReturn,JSONObject> params){
         descriptor = new ORBDescriptor();
         matcher = new BFMatcher(context);
         descriptor.initDescriptor(params.get(DataBase.ParamReturn.Descriptor),context);
         matcher.setTrainingParams(params.get(DataBase.ParamReturn.Matcher));
-        pv = new LocalImageProvider();
-        pv.setDatabase(db);
 
         matchParams = new JSONObject();
         try {
@@ -161,8 +191,10 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
                 } else {
                     publishProgress(formRender(query.render(false)));
                 }
+                query.release();
             }
             capture.close();
+            pv.release();
         } else {
             run = false;
         }

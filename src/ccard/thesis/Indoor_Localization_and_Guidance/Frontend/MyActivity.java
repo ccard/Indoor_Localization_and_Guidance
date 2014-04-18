@@ -2,17 +2,21 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.LogFile;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.OpenCVLoader;
 
 public class MyActivity extends Activity {
 
+
+    protected static final int REQUEST_CODE_RESOLUTION = 1;
     private BaseLoaderCallback mLoader = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -35,6 +39,7 @@ public class MyActivity extends Activity {
         setContentView(R.layout.main);
 
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5,this,mLoader);
+        LogFile.createLog(this);
     }
 
     @Override

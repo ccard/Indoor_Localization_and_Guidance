@@ -10,7 +10,6 @@ import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.KeyPoint;
 import org.opencv.imgproc.Imgproc;
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,10 +95,17 @@ public class ORBDescriptor implements Descriptor {
             keyPoints = new ArrayList<KeyPoint>(keyPoint.get(0).toList());
             descript = desc.get(0);
         } catch (Exception e) {
+            gray.release();
+            images.clear();
+            keyPoint.clear();
+            desc.clear();
             return false;
         }
 
-
+        gray.release();
+        images.clear();
+        keyPoint.clear();
+        desc.clear();
         return true;
     }
 }

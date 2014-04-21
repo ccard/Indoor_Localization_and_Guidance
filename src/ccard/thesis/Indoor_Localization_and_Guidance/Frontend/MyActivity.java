@@ -1,22 +1,33 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.LogFile;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveFile;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.OpenCVLoader;
+
+import java.io.*;
 
 public class MyActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -75,7 +86,7 @@ public class MyActivity extends Activity implements GoogleApiClient.ConnectionCa
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inf = getMenuInflater();
-        inf.inflate(R.menu.settings,menu);
+        inf.inflate(R.menu.settings, menu);
         return true;
     }
 
@@ -123,5 +134,52 @@ public class MyActivity extends Activity implements GoogleApiClient.ConnectionCa
     @Override
     public void onConnectionSuspended(int i) {
 
+    } 
+    private void uploadFile(){
+        ProgressDialog pd = ProgressDialog.show(this,"Uploading","Please wait",false);
+        final ResultCallback<DriveApi.DriveIdResult> driveIdResultResultCallback = new ResultCallback<DriveApi.DriveIdResult>() {
+            @Override
+            public void onResult(DriveApi.DriveIdResult driveIdResult) {
+                if (!driveIdResult.getStatus().isSuccess()){
+                    Toast.makeText(getParent(),"Failed to open file",5000);
+                    return;
+                }
+                DriveFile file = Drive.DriveApi.getFile(apiClient,driveIdResult.getDriveId());
+                try {
+                    DriveApi.ContentsResult contentsResult = file.openContents(apiClient,DriveFile.MODE_WRITE_ONLY,null)
+                            .await();
+                    if (!contentsResult.getStatus().isSuccess()){
+                        Toast.makeText(getParent(),"Failed to open file",5000);
+                        return;
+                    }
+                    OutputStream outputStream  = contentsResult.getContents().getOutputStream();
+                    BufferedReader appends = new BufferedReader(new FileReader(
+                            new File(LogFile.getInstance().getLog())));
+                    String line = "";
+                    while((line = appends.readLine()) != null){
+                        outputStream.write(line.getBytes());
+                    }
+                    appends.close();
+
+                    Status status = file.commitAndCloseContents(apiClient,contentsResult.getContents()).await();
+                    if (status.isSuccess()){
+                        Toast.makeText(getParent(),"Uploaded",4000);
+                    } else {
+                        Toast.makeText(getParent(),"Failed to Upload",4000);
+                    }
+                } catch (FileNotFoundException e){
+                    e.printStackTrace();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Drive.DriveApi.fetchDriveId(apiClient,Drive.DriveApi.getRootFolder(apiClient)
+                .getDriveId().encodeToString())
+                .setResultCallback(driveIdResultResultCallback);
+        pd.dismiss();
     }
+
+
 }

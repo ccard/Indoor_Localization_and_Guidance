@@ -1,6 +1,7 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
 
 import java.io.*;
@@ -12,7 +13,9 @@ public class LogFile {
     private static LogFile ourInstance = null;
     private Context context;
     private StringBuilder log;
-    private String file;;
+    private String file;
+
+    public static final String file_name  = "ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.LOG";
 
     private AsyncTask<String,Integer,Integer> writer;
 
@@ -22,7 +25,7 @@ public class LogFile {
     }
 
     public static void createLog(Context context){
-        if (ourInstance != null)
+        if (ourInstance == null)
             ourInstance = new LogFile(context);
     }
 
@@ -31,7 +34,7 @@ public class LogFile {
         log = new StringBuilder();
 
         file = context.getFilesDir().getAbsolutePath()+
-                "/Logs/ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.LOG";
+                "/Logs/"+file_name;
 
         File test = new File(file);
         if (test.exists()){

@@ -5,4 +5,8 @@
           android:icon="@android:drawable/ic_menu_preferences"
           android:title="Settings"
           android:showAsAction="ifRoom"/>
+    <item android:id="@+id/upload"
+          android:icon="@android:drawable/ic_menu_save"
+          android:title="Upload"
+          android:showAsAction="ifRoom"/>
 </menu>

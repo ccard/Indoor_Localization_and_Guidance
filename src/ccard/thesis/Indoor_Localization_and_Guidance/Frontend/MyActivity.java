@@ -55,7 +55,7 @@ public class MyActivity extends Activity {
                 startActivity(i);
                 return true;
             case R.id.upload:
-                LogFile.getInstance().l("test");
+                LogFile.getInstance().l("Uploading to google!");
                 LogFile.getInstance().flushLog();
                 int t = 0;
                 while (t <20) t++;

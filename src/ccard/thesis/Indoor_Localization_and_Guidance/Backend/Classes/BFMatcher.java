@@ -40,7 +40,7 @@ public class BFMatcher implements Matcher {
 
     @Override
     public ArrayList<ArrayList<DMatch>> match(JSONObject params, ImageContainer query) {
-
+        LogFile.getInstance().l("Starting Matching");
         List<MatOfDMatch> matches = new ArrayList<MatOfDMatch>();
 
         try {
@@ -51,11 +51,12 @@ public class BFMatcher implements Matcher {
 
                 k = params.getInt("k");
                 compactres = params.getBoolean("compactResults");
-
+                LogFile.getInstance().l("The Parameters for matching: "+params.toString());
                 matcher.knnMatch(query.getDescriptor(), matches, k);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            LogFile.getInstance().e(e.getStackTrace().toString());
+            LogFile.getInstance().flushLog();
         }
 
         ArrayList<ArrayList<DMatch>> match = new ArrayList<ArrayList<DMatch>>();
@@ -64,13 +65,20 @@ public class BFMatcher implements Matcher {
             match.add(new ArrayList<DMatch>(dMatch.toList()));
         }
 
+        LogFile.getInstance().l("Finished matching: has results = "+
+                (!match.isEmpty() ? "Has results" : "No Results"));
+        LogFile.getInstance().flushLog();
+
         return (!match.isEmpty() ? match : null);
     }
 
     @Override
     public int verify(ArrayList<ArrayList<DMatch>> matches, ImageProvidor db, ImageContainer query,
                       double distanceThreshold, int inlierThreshold, int matchThreshold) {
-
+        LogFile.getInstance().l("Starting Verification Process");
+        LogFile.getInstance().l("Threshold params: dist = "+distanceThreshold+
+                ", inlier = "+inlierThreshold+
+                ", match = "+matchThreshold);
         Map<Integer,ArrayList<MyDMatch>> image_matches = new HashMap<Integer, ArrayList<MyDMatch>>();
 
         for(ArrayList<DMatch> dMatches : matches){
@@ -93,6 +101,7 @@ public class BFMatcher implements Matcher {
 
         Set<Integer> to_del = new HashSet<Integer>();
 
+        LogFile.getInstance().l("Removing images that don't match the criteria");
         for(Integer i : image_matches.keySet()){
             if (image_matches.get(i).size() < matchThreshold){
                 to_del.add(i);
@@ -103,6 +112,8 @@ public class BFMatcher implements Matcher {
             image_matches.remove(del);
         }
         to_del.clear();
+        LogFile.getInstance().l("Remaining images: "+image_matches.size());
+        LogFile.getInstance().flushLog();
 
         Map<Integer,Pair<Mat,List<Integer>>> fundamentals = (true ? buildHomography(image_matches,distanceThreshold) :
                 buildFundamental(image_matches,distanceThreshold,0.99));
@@ -112,14 +123,18 @@ public class BFMatcher implements Matcher {
             List<Integer> inliers = fundamentals.get(fun).second;
             int sum = 0;
             for(Integer s : inliers) sum += s;
+            LogFile.getInstance().l("Number of inliers for image "+fun+" is "+sum);
 
             if (best_match < sum){
+                LogFile.getInstance().l("Previous Best match image "+image+" with inliers "+best_match);
                 best_match = sum;
+                LogFile.getInstance().l("Current Best match image "+fun+" with inliers "+best_match);
                 image = (best_match >= inlierThreshold ? fun : -1);
             }
         }
         image_matches.clear();
         fundamentals.clear();
+        LogFile.getInstance().flushLog();
         return image;
     }
 
@@ -137,6 +152,7 @@ public class BFMatcher implements Matcher {
      */
     private Map<Integer,Pair<Mat,List<Integer>>> buildFundamental(Map<Integer,ArrayList<MyDMatch>> images,
                                                                   double distThreshold, double confidence){
+        LogFile.getInstance().l("Creating Fundamental matricies");
         Map<Integer,Pair<Mat,List<Integer>>> fundamentals = new HashMap<Integer, Pair<Mat, List<Integer>>>();
 
         for(Integer index : images.keySet()){
@@ -156,6 +172,7 @@ public class BFMatcher implements Matcher {
 
             fundamentals.put(index,new Pair<Mat, List<Integer>>(H,liers));
         }
+        LogFile.getInstance().flushLog();
         return fundamentals;
     }
 
@@ -168,6 +185,7 @@ public class BFMatcher implements Matcher {
      */
     private Map<Integer,Pair<Mat,List<Integer>>> buildHomography(Map<Integer,ArrayList<MyDMatch>> images,
                                                                  double distThreshold){
+        LogFile.getInstance().l("Creating homographies");
         Map<Integer,Pair<Mat,List<Integer>>> homographies = new HashMap<Integer, Pair<Mat, List<Integer>>>();
 
         for(Integer index : images.keySet()){
@@ -187,6 +205,8 @@ public class BFMatcher implements Matcher {
 
             homographies.put(index,new Pair<Mat, List<Integer>>(H,liers));
         }
+
+        LogFile.getInstance().flushLog();
         return homographies;
     }
 

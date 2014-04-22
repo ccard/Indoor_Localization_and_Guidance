@@ -57,6 +57,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         * 3. initCapture - initialize the capture device
         * 4. initImageProcessing - initalizes the objects that will perform image processing
         */
+        LogFile.getInstance().l("Intializing Compoenents");
         initGuiComp();
 
         initDbInterface();
@@ -64,6 +65,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
         initCapture();
 
         initImageProcessing(getParams());
+        LogFile.getInstance().flushLog();
     }
 
     /**
@@ -116,7 +118,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
             matchParams.put("k",5);
             matchParams.put("compactResults",true);
         } catch (JSONException e) {
-            e.printStackTrace();
+            LogFile.getInstance().e(e.getStackTrace().toString());
         }
     }
 
@@ -131,7 +133,8 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
                     db.getParams(DataBase.ParamReturn.Matcher));
             db.closeConnection();
         } catch (DBError dbError) {
-            dbError.printStackTrace();
+            LogFile.getInstance().e(dbError.getStackTrace().toString());
+            LogFile.getInstance().flushLog();
         }
         return params;
     }
@@ -142,7 +145,8 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
             j.put("Type",1);
             disp = img;
         } catch (JSONException e) {
-            e.printStackTrace();
+            LogFile.getInstance().e(e.getStackTrace().toString());
+            LogFile.getInstance().flushLog();
         }
         return j;
     }
@@ -153,7 +157,8 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
             j.put("Type",2);
             j.put("Data",startStop);
         } catch (JSONException e) {
-            e.printStackTrace();
+            LogFile.getInstance().e(e.getStackTrace().toString());
+            LogFile.getInstance().flushLog();
         }
         return j;
     }
@@ -164,7 +169,8 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
             j.put("Type",3);
             j.put("Data",message);
         } catch (JSONException e) {
-            e.printStackTrace();
+            LogFile.getInstance().e(e.getStackTrace().toString());
+            LogFile.getInstance().flushLog();
         }
         return j;
     }
@@ -172,6 +178,8 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
     @Override
     protected Integer doInBackground(Integer... params) {
         if (!pv.hasImages()){
+            LogFile.getInstance().l("Loading db");
+            LogFile.getInstance().flushLog();
             publishProgress(formProgress(true));
             pv.requestImages(null,descriptor);
             matcher.train(pv);
@@ -187,11 +195,13 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
                     publishProgress(formRender(query.render(true)));
                     int choice = localize(query);
                     if (choice < 0) continue;
+                    LogFile.getInstance().l("The choice made was: "+choice);
                     publishProgress(formMessage("" + choice));
                 } else {
                     publishProgress(formRender(query.render(false)));
                 }
                 query.release();
+                LogFile.getInstance().flushLog();
             }
             capture.close();
             pv.release();

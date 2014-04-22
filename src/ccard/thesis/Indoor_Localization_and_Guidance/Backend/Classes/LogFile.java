@@ -58,13 +58,16 @@ public class LogFile {
     }
 
     public void e(String s){
-        log.append("===================\nERROR:\n")
+        log.append("===================\nERROR: ")
+                .append(DateFormat.getInstance().format(new Date()))
+                .append("\n")
                 .append(s)
                 .append("\nEND ERROR\n====================\n");
     }
 
     public void l(String s){
-        log.append("Log: ").append(s).append("\n");
+        log.append("Log ").append(DateFormat.getInstance().format(new Date())).append(": ")
+                .append(s).append("\n");
     }
 
     public String getLog(){ return file; }

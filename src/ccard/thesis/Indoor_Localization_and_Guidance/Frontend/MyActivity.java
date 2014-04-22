@@ -1,31 +1,16 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.LogFile;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.drive.*;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.OpenCVLoader;
-
-import java.io.*;
 
 public class MyActivity extends Activity {
 

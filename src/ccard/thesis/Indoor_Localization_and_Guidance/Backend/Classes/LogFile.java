@@ -1,7 +1,6 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
 
 import java.io.*;

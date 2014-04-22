@@ -21,9 +21,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.DriveFile;
+import com.google.android.gms.drive.*;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.OpenCVLoader;
 
@@ -69,9 +67,13 @@ public class MyActivity extends Activity implements GoogleApiClient.ConnectionCa
             apiClient = new GoogleApiClient.Builder(this)
                     .addApi(Drive.API)
                     .addScope(Drive.SCOPE_FILE)
+                    .addScope(Drive.SCOPE_APPFOLDER)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .build();
+        }
+        if (!apiClient.isConnected()){
+            apiClient.connect();
         }
     }
 
@@ -98,9 +100,12 @@ public class MyActivity extends Activity implements GoogleApiClient.ConnectionCa
                 startActivity(i);
                 return true;
             case R.id.upload:
-                if (!apiClient.isConnected()){
-                    apiClient.connect();
-                }
+                LogFile.getInstance().l("test");
+                LogFile.getInstance().flushLog();
+                int t = 0;
+                while (t <20) t++;
+
+                uploadFile();
                 return true;
         }
         return true;
@@ -134,52 +139,117 @@ public class MyActivity extends Activity implements GoogleApiClient.ConnectionCa
     @Override
     public void onConnectionSuspended(int i) {
 
-    } 
+    }
+
+    public void showMessage(String message){
+        Toast.makeText(this,message,5000).show();
+    }
     private void uploadFile(){
         ProgressDialog pd = ProgressDialog.show(this,"Uploading","Please wait",false);
-        final ResultCallback<DriveApi.DriveIdResult> driveIdResultResultCallback = new ResultCallback<DriveApi.DriveIdResult>() {
-            @Override
-            public void onResult(DriveApi.DriveIdResult driveIdResult) {
-                if (!driveIdResult.getStatus().isSuccess()){
-                    Toast.makeText(getParent(),"Failed to open file",5000);
-                    return;
-                }
-                DriveFile file = Drive.DriveApi.getFile(apiClient,driveIdResult.getDriveId());
-                try {
-                    DriveApi.ContentsResult contentsResult = file.openContents(apiClient,DriveFile.MODE_WRITE_ONLY,null)
-                            .await();
-                    if (!contentsResult.getStatus().isSuccess()){
-                        Toast.makeText(getParent(),"Failed to open file",5000);
-                        return;
-                    }
-                    OutputStream outputStream  = contentsResult.getContents().getOutputStream();
-                    BufferedReader appends = new BufferedReader(new FileReader(
-                            new File(LogFile.getInstance().getLog())));
-                    String line = "";
-                    while((line = appends.readLine()) != null){
-                        outputStream.write(line.getBytes());
-                    }
-                    appends.close();
 
-                    Status status = file.commitAndCloseContents(apiClient,contentsResult.getContents()).await();
-                    if (status.isSuccess()){
-                        Toast.makeText(getParent(),"Uploaded",4000);
-                    } else {
-                        Toast.makeText(getParent(),"Failed to Upload",4000);
-                    }
-                } catch (FileNotFoundException e){
-                    e.printStackTrace();
-                } catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
-        };
+        Drive.DriveApi.newContents(apiClient)
+                .setResultCallback(contentsResultResultCallback);
 
-        Drive.DriveApi.fetchDriveId(apiClient,Drive.DriveApi.getRootFolder(apiClient)
-                .getDriveId().encodeToString())
-                .setResultCallback(driveIdResultResultCallback);
         pd.dismiss();
     }
 
+    protected ProgressDialog progress(ProgressDialog pd, boolean start_stop){
+        if (!start_stop){
+            pd.dismiss();
+            return null;
+        } else {
+            pd = ProgressDialog.show(this,"Uploading","PleaseWait");
+            return pd;
+        }
+    }
 
+    ResultCallback<DriveApi.ContentsResult> contentsResultResultCallback = new ResultCallback<DriveApi.ContentsResult>() {
+        @Override
+        public void onResult(DriveApi.ContentsResult contentsResult) {
+            if (!contentsResult.getStatus().isSuccess()){
+                showMessage("Error while trying to create new file contents");
+                return;
+            }
+
+            MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                    .setTitle(LogFile.file_name)
+                    .setMimeType("text/plain")
+                    .setStarred(true).build();
+            Drive.DriveApi.getRootFolder(apiClient)
+                    .createFile(apiClient,changeSet,contentsResult.getContents())
+                    .setResultCallback(driveIdResultResultCallback);
+
+        }
+    };
+
+    ResultCallback<DriveFolder.DriveFileResult> driveIdResultResultCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
+        @Override
+        public void onResult(DriveFolder.DriveFileResult driveIdResult) {
+            if (!driveIdResult.getStatus().isSuccess()){
+                showMessage("Failed to create file");
+                return;
+            }
+            new UploaderService().execute(driveIdResult);
+        }
+    };
+
+    private class UploaderService extends AsyncTask<DriveFolder.DriveFileResult,String,Void>{
+        private ProgressDialog pd;
+
+        @Override
+        protected Void doInBackground(DriveFolder.DriveFileResult... params) {
+            DriveFolder.DriveFileResult fileResult = params[0];
+            try {
+                DriveApi.ContentsResult contentsResult = fileResult.getDriveFile()
+                        .openContents(apiClient, DriveFile.MODE_WRITE_ONLY, null)
+                        .await();
+                if (!contentsResult.getStatus().isSuccess()){
+                    publishProgress("Failed to open file");
+                    return null;
+                }
+                OutputStream outputStream  = contentsResult.getContents().getOutputStream();
+                BufferedReader appends = new BufferedReader(new FileReader(
+                        new File(LogFile.getInstance().getLog())));
+                String line = "";
+                while((line = appends.readLine()) != null){
+                    outputStream.write(line.getBytes());
+                }
+                appends.close();
+
+                com.google.android.gms.common.api.Status status = fileResult.getDriveFile()
+                        .commitAndCloseContents(apiClient, contentsResult.getContents())
+                        .await();
+                if (status.isSuccess()){
+                    publishProgress("Uploaded");
+                } else {
+                    publishProgress("Failed to Upload");
+                }
+            } catch (FileNotFoundException e){
+                e.printStackTrace();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... vals){
+            super.onProgressUpdate(vals);
+
+            showMessage(vals[0]);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = progress(pd,true);
+        }
+
+        @Override
+        protected void onPostExecute(Void result){
+            super.onPostExecute(result);
+            progress(pd,false);
+        }
+    }
 }

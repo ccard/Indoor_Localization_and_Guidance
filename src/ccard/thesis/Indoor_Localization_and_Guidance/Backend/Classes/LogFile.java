@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.util.Date;
 
 /**
  * Created by Ch on 4/17/14.
@@ -33,12 +35,26 @@ public class LogFile {
         this.context = context;
         log = new StringBuilder();
 
-        file = context.getFilesDir().getAbsolutePath()+
-                "/Logs/"+file_name;
-
-        File test = new File(file);
+        File dir = context.getDir("Logs",Context.MODE_PRIVATE);
+        File test = new File(dir.getAbsolutePath()+File.separator+file_name);
+        file = test.getAbsolutePath();
         if (test.exists()){
-            test.delete();
+            try {
+                PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file,true)));
+                out.println("--------------------------\n Time: "+
+                        DateFormat.getInstance().format(new Date())+
+                        "\n-----------------------\n\n");
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                test.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 

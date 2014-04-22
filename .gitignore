@@ -32,3 +32,4 @@ proguard/
 assets/*/*.jpg
 assets/*/*.txt
 assets/*.txt
+project.properties

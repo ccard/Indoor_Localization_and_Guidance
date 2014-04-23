@@ -41,6 +41,9 @@ public class CameraCapture implements ImageCapture {
 
                cSize = largest;
            }
+           LogFile.getInstance().l("The Camera dimensions are: (width x height)"+
+                   cSize.width+" x "+cSize.height);
+           LogFile.getInstance().flushLog();
            camera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH,cSize.width);
            camera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT,cSize.height);
         }

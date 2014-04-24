@@ -105,4 +105,14 @@ public class MyMat extends Mat implements ImageContainer {
 
         return true;
     }
+
+    @Override
+    public boolean setDescriptor(Mat descriptor) {
+        return false;
+    }
+
+    @Override
+    public boolean setKeypoints(List<KeyPoint> keyPoints) {
+        return false;
+    }
 }

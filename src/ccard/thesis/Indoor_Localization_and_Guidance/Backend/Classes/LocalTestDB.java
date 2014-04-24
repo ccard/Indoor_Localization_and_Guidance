@@ -14,6 +14,7 @@ import org.opencv.imgproc.Imgproc;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +38,11 @@ public class LocalTestDB implements DataBase {
 
     @Override
     public boolean sendRequest(JSONObject request, RequestType type) throws DBError {
+        return false;
+    }
+
+    @Override
+    public boolean saveDescriptor_Keypoints(List<ImageContainer> img) throws DBError {
         return false;
     }
 

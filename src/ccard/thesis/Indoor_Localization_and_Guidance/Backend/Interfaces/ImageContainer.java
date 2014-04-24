@@ -6,6 +6,7 @@ import org.opencv.core.Mat;
 import org.opencv.features2d.KeyPoint;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Chris Card on 3/3/14.
@@ -61,6 +62,20 @@ public interface ImageContainer{
      * @return true if it succeeded
      */
     public boolean calcDescriptor(Descriptor des);
+
+    /**
+     * This method sets the descriptor for the image
+     * @param descriptor the desciptor set the descriptor to
+     * @return true if success false other wise
+     */
+    public boolean setDescriptor(Mat descriptor);
+
+    /**
+     * This method sets the key points for the image
+     * @param keyPoints the keypoints to set the keypoints to
+     * @return true if success
+     */
+    public boolean setKeypoints(List<KeyPoint> keyPoints);
 
 
 }

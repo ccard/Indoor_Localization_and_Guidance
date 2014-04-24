@@ -65,10 +65,18 @@ public interface DataBase extends Serializable{
 
     /**
      * This method saves a list of image descriptors and key points to the database
-     * @param img the list of images to save the descriptors of
+     * @param location The location of the image
+     * @param img map of locations to images
      * @return true if success
      * @throws DBError
      */
-    public boolean saveDescriptor_Keypoints(List<ImageContainer> img) throws DBError;
+    public boolean saveDescriptor_Keypoints(String location,ImageContainer img) throws DBError;
+
+    /**
+     * This method gets the location of a image
+     * @param image_id the image id
+     * @return the location of the image
+     */
+    public String getLocation(int image_id) throws DBError;
 
 }

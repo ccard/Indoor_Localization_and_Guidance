@@ -7,6 +7,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.DBError;
+import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.LocalSQLDb;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.LogFile;
 import ccard.thesis.Indoor_Localization_and_Guidance.R;
 import org.opencv.android.BaseLoaderCallback;
@@ -14,6 +17,8 @@ import org.opencv.android.OpenCVLoader;
 
 public class MyActivity extends Activity {
 
+
+    private LocalSQLDb db;
     private BaseLoaderCallback mLoader = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -37,6 +42,16 @@ public class MyActivity extends Activity {
 
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5,this,mLoader);
         LogFile.createLog(this);
+        db = new LocalSQLDb(this);
+
+        try {
+            if (db.openConnection()){
+                ((Button)findViewById(R.id.train)).setEnabled(false);
+            }
+        } catch (DBError dbError) {
+            LogFile.getInstance().e(dbError.getStackTrace().toString());
+            LogFile.getInstance().flushLog();
+        }
     }
 
 
@@ -69,6 +84,12 @@ public class MyActivity extends Activity {
 
     public void guide(View view){
         Intent i = new Intent(this,Guidance.class);
+        startActivity(i);
+    }
+
+    public void train(View view){
+        Intent i = new Intent(this,Training.class);
+        db.close();
         startActivity(i);
     }
 }

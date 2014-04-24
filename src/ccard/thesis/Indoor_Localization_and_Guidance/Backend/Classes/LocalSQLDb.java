@@ -1,6 +1,8 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Base64;
@@ -15,6 +17,7 @@ import org.opencv.core.Point;
 import org.opencv.features2d.KeyPoint;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,11 +30,21 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
     private static final int SCHEMA_VERSION = 1;
 
     private static final String DATABASE_INIT_IMAGE = "CREATE TABLE images (_id INTEGER PRIMARY KEY AUTOINCREMENT, "+
-            "location INTEGER REFERENCES locations(_id) NOT DEFERRABLE"+
-            "descriptor TEXT, keypoints TEXT);";
+            "location INTEGER REFERENCES locations(_id) NOT DEFERRABLE NOT NULL ON CONFLICT FAIL, "+
+            "descriptor TEXT, keypoints TEXT)";
 
     private static final String DATABASE_INIT_LOCATIONS = "CREATE TABLE locations (_id INTEGER PRIMARY KEY AUTOINCREMENT, "+
-            "location TEXT);";
+            "location TEXT)";
+
+    private static final String CHECK_LOCATION = "SELECT _id FROM locations WHERE location=?";
+
+    private static final String GET_LOCATION = "SELECT locations.location FROM locations, images "+
+            "WHERE locations._id=images.location AND images._id=?";
+
+    private static final String GET_ALL_IMAGES = "SELECT _id AS ID, location, descriptor, keypoints "+
+            "FROM images";
+
+    private static final String CHECK_FOR_IMAGES = "SELECT _id FROM images WHERE _id=0";
 
 
     public LocalSQLDb(Context context){
@@ -51,7 +64,10 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public boolean openConnection() throws DBError {
-        return false;
+        Cursor c = getReadableDatabase().rawQuery(CHECK_FOR_IMAGES,null);
+        boolean ret = (c.getCount() == 0 ? false : true);
+        c.close();
+        return ret;
     }
 
     @Override
@@ -66,7 +82,30 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public Map<Integer, ImageContainer> getImages(Descriptor des, boolean use_des) throws DBError {
-        return null;
+        Map<Integer,ImageContainer> images = new HashMap<Integer, ImageContainer>();
+
+        Cursor c = getReadableDatabase().rawQuery(GET_ALL_IMAGES,null);
+        if (c.getCount() == 0){
+            c.close();
+            return null;
+        }
+
+        c.moveToFirst();
+        do {
+            int id_index = c.getColumnIndex("ID");
+            int id = c.getInt(id_index);
+            int descript_idx = c.getColumnIndex("descriptor");
+            String descriptor = c.getString(descript_idx);
+            int keypt_index = c.getColumnIndex("keypoints");
+            String keypoints = c.getString(keypt_index);
+
+            ImageContainer temp = fromJSON(descriptor);
+            temp.setKeypoints(keyPointsFromJSON(keypoints));
+            images.put(id,temp);
+            c.moveToNext();
+        } while (!c.isAfterLast());
+        c.close();
+        return images;
     }
 
     @Override
@@ -112,10 +151,53 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
     }
 
     @Override
-    public boolean saveDescriptor_Keypoints(List<ImageContainer> img) throws DBError {
+    public boolean saveDescriptor_Keypoints(String location,ImageContainer img) throws DBError {
+        String discriptor = toJSON(img.getDescriptor());
+        String keypoints = keyPointsToString(img.getKeyPoints());
+        long id = checkLocation(location);
+        if (id < 0){
+            ContentValues loc = new ContentValues();
+            loc.put("location",location);
+            id = getWritableDatabase().insert("locations","location",loc);
+            if (-1 == id){
+                DBError dbError = new DBError(new Exception("Failed to insert location"));
+                throw dbError;
+            }
+        }
 
-        //TODO: implement saving tringing images
-        return false;
+        ContentValues image = new ContentValues();
+        image.put("location",id);
+        image.put("descriptor",discriptor);
+        image.put("keypoints",keypoints);
+
+        return (getWritableDatabase().insert("images","location",image) == -1 ? false : true);
+    }
+
+    @Override
+    public String getLocation(int image_id) throws DBError{
+        String[] args = {image_id+""};
+        Cursor c = getReadableDatabase().rawQuery(GET_LOCATION,args);
+        String location = "unknown";
+        if (c.getCount() > 0){
+            c.moveToFirst();
+            int index = c.getColumnIndex("location");
+            location = c.getString(index);
+        }
+        c.close();
+        return location;
+    }
+
+    private long checkLocation(String location) throws DBError{
+        String[] args = {location};
+        Cursor c = getReadableDatabase().rawQuery(CHECK_LOCATION,args);
+        long res = -1;
+        if (c.getCount() == 1){
+            c.moveToFirst();
+            int index = c.getColumnIndex("_id");
+            res = c.getLong(index);
+        }
+        c.close();
+        return res;
     }
 
     /**
@@ -124,30 +206,28 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
      * @return the json string representing the descriptor
      * @throws DBError
      */
-    private String toJSON(ImageContainer img) throws DBError{
+    private String toJSON(Mat img) throws DBError{
         JSONObject convert = new JSONObject();
 
-        if (img.getDescriptor().isContinuous()){
-            int cols = img.getDescriptor().cols();
-            int rows = img.getDescriptor().rows();
-            int elemSize = (int)img.getDescriptor().elemSize();
+        if (img.isContinuous()){
+            int cols = img.cols();
+            int rows = img.rows();
+            int elemSize = (int)img.elemSize();
 
             byte[] data = new byte[cols*rows*elemSize];
 
-            img.getDescriptor().get(0,0,data);
+            img.get(0, 0, data);
 
             try {
                 convert.put("rows",rows);
                 convert.put("cols",cols);
-                convert.put("type",img.getDescriptor().type());
+                convert.put("type",img.type());
 
                 String dataString = new String(Base64.encode(data,Base64.DEFAULT));
 
                 convert.put("data",dataString);
                 return convert.toString();
             } catch (JSONException e) {
-                LogFile.getInstance().e(e.getStackTrace().toString());
-                LogFile.getInstance().flushLog();
                 DBError dbError = new DBError("Error converting image to JSON",e);
                 throw dbError;
             }
@@ -183,13 +263,17 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
             descript.setDescriptor(descriptor);
             return descript;
         } catch (JSONException e) {
-            LogFile.getInstance().e(e.getStackTrace().toString());
-            LogFile.getInstance().flushLog();
             DBError dbError = new DBError("Failed to load image",e);
             throw dbError;
         }
     }
 
+    /**
+     * This method returns a string representing the list of keypoints
+     * @param keyPoints the list of key points to convert to a string
+     * @return the string representing the list of key points
+     * @throws DBError
+     */
     private String keyPointsToString(List<KeyPoint> keyPoints) throws DBError{
         List<String> converts = new ArrayList<String>();
 
@@ -219,13 +303,17 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
             rt.put("keypoints",ret.toString());
             return rt.toString();
         } catch (JSONException e) {
-            LogFile.getInstance().e(e.getStackTrace().toString());
-            LogFile.getInstance().flushLog();
             DBError dbError = new DBError("Failed to convert key point to json",e);
             throw dbError;
         }
     }
 
+    /**
+     * This method converts a string json to a list of key points
+     * @param json the string representing the list of keypoints
+     * @return the list of keypoints
+     * @throws DBError
+     */
     private List<KeyPoint> keyPointsFromJSON(String json) throws DBError{
         try {
             JSONObject converts = new JSONObject(json);
@@ -253,8 +341,6 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
             }
             return ret;
         } catch (JSONException e) {
-            LogFile.getInstance().e(e.getStackTrace().toString());
-            LogFile.getInstance().flushLog();
             DBError dbError = new DBError("Failed to reconstruct key points",e);
             throw dbError;
         }

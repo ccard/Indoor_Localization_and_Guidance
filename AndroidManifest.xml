@@ -32,6 +32,8 @@
                 android:theme="@android:style/Theme.Holo.Dialog"/>
         <activity android:name=".Frontend.Uploading"
                 android:theme="@android:style/Theme.Holo.Dialog"/>
+        <activity android:name=".Frontend.Training"
+                android:theme="@android:style/Theme.Holo.NoActionBar"/>
         <service android:name=".Backend.Classes.DataBaseConnection"/>
     </application>
 </manifest>

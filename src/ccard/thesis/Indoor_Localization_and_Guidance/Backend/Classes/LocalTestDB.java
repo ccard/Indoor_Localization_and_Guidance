@@ -42,7 +42,7 @@ public class LocalTestDB implements DataBase {
     }
 
     @Override
-    public boolean saveDescriptor_Keypoints(List<ImageContainer> img) throws DBError {
+    public boolean saveDescriptor_Keypoints(String location,ImageContainer img) throws DBError {
         return false;
     }
 
@@ -139,5 +139,66 @@ public class LocalTestDB implements DataBase {
         }
 
         return params;
+    }
+
+    @Override
+    public String getLocation(int image_id) throws DBError{
+        return null;
+    }
+
+    /**
+     * This method gets the list of all image files
+     * @return the list of image files
+     * @throws DBError
+     */
+    public List<String> getImageFiles() throws DBError{
+        ArrayList<String> files = new ArrayList<String>();
+
+        try {
+            AssetManager manager = context.getResources().getAssets();
+            InputStream is = null,is2 = null;
+            is = manager.open("image_locations.txt");
+            BufferedReader in = new BufferedReader(new InputStreamReader(is));
+            String file;
+            while((file = in.readLine()) != null){
+                file += "/";
+                is2 = manager.open(file+"images.txt");
+                BufferedReader in2 = new BufferedReader(new InputStreamReader(is2));
+                String file2;
+                while((file2 = in2.readLine()) != null){
+                    files.add(file+file2);
+                }
+                in2.close();
+            }
+            in.close();
+            is.close();
+            return files;
+        } catch (FileNotFoundException e) {
+            DBError dbError = new DBError("File not found",e);
+            throw dbError;
+        } catch (IOException e){
+            DBError dbError = new DBError("IO error",e);
+            throw dbError;
+        }
+    }
+
+    /**
+     * This method loads an image file from the specified image file
+     * @param file the file
+     * @return the image
+     * @throws DBError
+     */
+    public ImageContainer loadImage(String file) throws DBError{
+        AssetManager manager = context.getResources().getAssets();
+        InputStream is = null;
+        try {
+            is = manager.open(file);
+            MyMat tmp = new MyMat(BitmapFactory.decodeStream(is));
+            is.close();
+            return tmp;
+        } catch (IOException e) {
+            DBError dbError = new DBError("Failed to load file",e);
+            throw dbError;
+        }
     }
 }

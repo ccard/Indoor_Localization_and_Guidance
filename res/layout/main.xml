@@ -18,7 +18,8 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Train"
-                android:id="@+id/train"/>
+                android:id="@+id/train"
+                android:onClick="train"/>
 
 </LinearLayout>
 

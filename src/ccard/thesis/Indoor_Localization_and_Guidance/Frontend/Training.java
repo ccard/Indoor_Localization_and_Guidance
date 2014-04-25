@@ -1,13 +1,17 @@
 package ccard.thesis.Indoor_Localization_and_Guidance.Frontend;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.audiofx.AudioEffect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes.*;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.DataBase;
@@ -24,6 +28,7 @@ import java.util.ListIterator;
  */
 public class Training extends Activity {
 
+    //TODO: fix memory leak problems and figure out why images isn't displaying
     private LocalSQLDb sqlDb;
     private LocalTestDB loader;
     private ProgressBar progressBar;
@@ -31,7 +36,8 @@ public class Training extends Activity {
     private ListIterator<String> files;
     private int num_files,progression;
     private ImageContainer currImage;
-    private FrameLayout frame;
+    protected FrameLayout frame;
+    private EditText location;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +56,8 @@ public class Training extends Activity {
         progression = 0;
 
         frame = (FrameLayout)findViewById(R.id.TrainingView);
+        location = (EditText)findViewById(R.id.location_field);
+        new Load_Save(this,sqlDb,loader,null,null).execute(files.next());
     }
 
     private JSONObject loadParams(){
@@ -75,7 +83,26 @@ public class Training extends Activity {
     }
 
     public void save_image(View view){
-        //TODO: implement saving functionality
+        if (location.getText().length() == 0){
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("You must enter a location!")
+                    .create();
+            alertDialog.show();
+        }
+        else if (files.hasNext()){
+            new Load_Save(this,sqlDb,loader,(MyMat)currImage,orb)
+                    .execute(location.getText().toString(),files.next());
+            progression++;
+            progressBar.setProgress(progression);
+            progressBar.invalidate();
+        } else {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("All images are now loaded")
+                    .create();
+            alertDialog.show();
+            sqlDb.close();
+            finish();
+        }
     }
 
 
@@ -84,10 +111,12 @@ public class Training extends Activity {
         private LocalSQLDb sqlDb;
         private LocalTestDB loader;
         private ProgressDialog pd;
-        private ImageContainer toSave;
+        private MyMat toSave;
         private Descriptor des;
-        public Load_Save(LocalSQLDb db,LocalTestDB testDB,MyMat img,Descriptor des){
+        private Context context;
+        public Load_Save(Context context,LocalSQLDb db,LocalTestDB testDB,MyMat img,Descriptor des){
             sqlDb = db;
+            this.context = context;
             loader = testDB;
             if (img != null){
                 toSave = img;
@@ -108,7 +137,7 @@ public class Training extends Activity {
             } else {
                 try {
                     toSave.calcDescriptor(des);
-                    ((MyMat)toSave).release();
+                    toSave.release();
                     sqlDb.saveDescriptor_Keypoints(strings[0],toSave);
                     img = loader.loadImage(strings[1]);
                 } catch (DBError dbError) {
@@ -123,15 +152,17 @@ public class Training extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            pd = ProgressDialog.show(getParent(),"Saving","Please Wait",false);
+            pd = ProgressDialog.show(context,"Saving","Please Wait",false);
         }
 
         @Override
         protected void onPostExecute(ImageContainer imageContainer) {
             super.onPostExecute(imageContainer);
             currImage = imageContainer;
-            frame.setBackground(new BitmapDrawable(getResources(),currImage.render(false)));
             pd.dismiss();
+
+            frame.setBackground(new BitmapDrawable(getResources(), imageContainer.render(false)));
+
         }
     }
 

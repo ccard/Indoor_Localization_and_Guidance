@@ -4,7 +4,13 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
               android:id="@+id/TrainingView"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
         android:layout_weight="1">
+
+    <!--<ImageView android:layout_width="fill_parent"-->
+               <!--android:layout_height="match_parent"-->
+            <!--android:id="@+id/showImage" android:background="@android:color/white"/>-->
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
@@ -20,11 +26,13 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Location"
-                android:id="@+id/textView" android:layout_gravity="left|bottom"/>
+                android:id="@+id/textView"
+                android:layout_gravity="left|bottom"/>
         <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/editText2" android:layout_weight="1" android:layout_marginLeft="2px"/>
+                android:id="@+id/location_field"
+                android:layout_marginLeft="2dp"/>
     </LinearLayout>
         <LinearLayout
                 android:orientation="horizontal"
@@ -39,7 +47,7 @@
             <ProgressBar
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="fill_parent"
-                    android:layout_height="20px"
+                    android:layout_height="20dp"
                     android:layout_gravity="center|bottom"
                     android:id="@+id/imageProgress"
                     android:background="@android:color/holo_red_light"

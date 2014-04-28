@@ -276,7 +276,7 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
      * @throws DBError
      */
     private String keyPointsToString(List<KeyPoint> keyPoints) throws DBError{
-        List<String> converts = new ArrayList<String>();
+        JSONArray converts = new JSONArray();
 
         try {
             for (KeyPoint kp : keyPoints){
@@ -291,17 +291,16 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
                 pt.put("x",x);
                 pt.put("y",y);
                 JSONObject keypt = new JSONObject();
-                keypt.put("pt",pt.toString());
+                keypt.put("pt",pt);
                 keypt.put("angle",angle);
                 keypt.put("class_id",class_id);
                 keypt.put("octave",octave);
                 keypt.put("response",response);
                 keypt.put("size",size);
-                converts.add(keypt.toString());
+                converts.put(keypt);
             }
-            JSONArray ret = new JSONArray(converts);
             JSONObject rt = new JSONObject();
-            rt.put("keypoints",ret.toString());
+            rt.put("keypoints",converts);
             return rt.toString();
         } catch (JSONException e) {
             DBError dbError = new DBError("Failed to convert key point to json",e);
@@ -342,6 +341,7 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
             }
             return ret;
         } catch (JSONException e) {
+            e.printStackTrace();
             DBError dbError = new DBError("Failed to reconstruct key points",e);
             throw dbError;
         }

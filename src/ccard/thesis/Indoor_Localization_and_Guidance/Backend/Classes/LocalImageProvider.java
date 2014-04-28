@@ -49,7 +49,8 @@ public class LocalImageProvider implements ImageProvidor {
                 images.get(index).calcDescriptor(descriptor);
             }*/
         } catch (DBError dbError) {
-            LogFile.getInstance().e(dbError.getStackTrace().toString());
+            LogFile.getInstance().e(dbError.getMessage());
+            LogFile.getInstance().e(dbError.getStackTrace());
             LogFile.getInstance().flushLog();
         }
     }

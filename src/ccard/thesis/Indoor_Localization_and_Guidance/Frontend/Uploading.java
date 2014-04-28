@@ -159,6 +159,8 @@ public class Uploading extends Activity implements GoogleApiClient.ConnectionCal
                 e.printStackTrace();
             }
 
+            LogFile.getInstance().cleanLog();
+
             return null;
         }
 

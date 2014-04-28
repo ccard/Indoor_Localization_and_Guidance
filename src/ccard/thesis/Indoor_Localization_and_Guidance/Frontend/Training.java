@@ -28,7 +28,6 @@ import java.util.ListIterator;
  */
 public class Training extends Activity {
 
-    //TODO: fix memory leak problems and figure out why images isn't displaying
     private LocalSQLDb sqlDb;
     private LocalTestDB loader;
     private ProgressBar progressBar;
@@ -155,7 +154,7 @@ public class Training extends Activity {
                     LogFile.getInstance().flushLog();
                     img = loader.loadImage(strings[1],des);
                 } catch (DBError dbError) {
-                    LogFile.getInstance().e(dbError.getStackTrace().toString());
+                    LogFile.getInstance().e(dbError.getStackTrace());
                     LogFile.getInstance().flushLog();
                 }
             }

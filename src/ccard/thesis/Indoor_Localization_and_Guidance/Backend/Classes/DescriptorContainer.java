@@ -58,10 +58,11 @@ public class DescriptorContainer implements ImageContainer {
     }
 
     @Override
-    public boolean setDescriptor(Mat descriptor) {
-        if (descriptor.empty()) return false;
-        descriptor.copyTo(this.descriptor);
-        descriptor.release();
+    public boolean setDescriptor(Mat des) {
+        if (des.empty()) return false;
+        descriptor = new Mat(des.rows(),des.cols(),des.type());
+        des.copyTo(descriptor);
+        des.release();
         return true;
     }
 

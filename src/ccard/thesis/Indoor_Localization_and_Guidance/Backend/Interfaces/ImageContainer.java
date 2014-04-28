@@ -65,10 +65,10 @@ public interface ImageContainer{
 
     /**
      * This method sets the descriptor for the image
-     * @param descriptor the desciptor set the descriptor to
+     * @param des the desciptor set the descriptor to
      * @return true if success false other wise
      */
-    public boolean setDescriptor(Mat descriptor);
+    public boolean setDescriptor(Mat des);
 
     /**
      * This method sets the key points for the image

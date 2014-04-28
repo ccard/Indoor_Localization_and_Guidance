@@ -84,7 +84,7 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
      * This initializes components that interact with the database
      */
     private void initDbInterface(){
-        db = new LocalTestDB(context);
+        db = new LocalSQLDb(context);
         pv = new LocalImageProvider();
         pv.setDatabase(db);
         res = new ResReceiver(new Handler());

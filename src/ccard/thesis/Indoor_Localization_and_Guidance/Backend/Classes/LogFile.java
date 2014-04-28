@@ -65,6 +65,25 @@ public class LogFile {
                 .append("\nEND ERROR\n====================\n");
     }
 
+    public void e(StackTraceElement[] trace){
+        log.append("===================\nERROR: ")
+                .append(DateFormat.getInstance().format(new Date()))
+                .append("\n");
+        for(int i = 0; i < trace.length; i++){
+            log.append(trace[i].getMethodName())
+                    .append(":")
+                    .append(trace[i].getFileName())
+                    .append(":")
+                    .append(trace[i].getLineNumber())
+                    .append(":")
+                    .append(trace[i].getClassName())
+            .append("\n");
+        }
+
+
+        log.append("\nEND ERROR\n====================\n");
+    }
+
     public void l(String s){
         log.append("Log ").append(DateFormat.getInstance().format(new Date())).append(": ")
                 .append(s).append("\n");
@@ -82,6 +101,16 @@ public class LogFile {
             writer = null;
             writer = new writeFile().execute(file,log.toString());
             release();
+        }
+    }
+
+    public void cleanLog(){
+        try {
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file_name,true)));
+            out.println("Log "+DateFormat.getInstance().format(new Date())+": Cleaned Log\n");
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

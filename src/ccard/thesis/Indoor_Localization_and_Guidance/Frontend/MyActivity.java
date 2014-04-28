@@ -42,8 +42,18 @@ public class MyActivity extends Activity {
 
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5,this,mLoader);
         LogFile.createLog(this);
-        db = new LocalSQLDb(this);
+    }
 
+    @Override
+    public void onPause(){
+        db.close();
+        db = null;
+        super.onPause();
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        db = new LocalSQLDb(this);
         try {
             if (db.openConnection()){
                 ((Button)findViewById(R.id.train)).setEnabled(false);
@@ -53,7 +63,6 @@ public class MyActivity extends Activity {
             LogFile.getInstance().flushLog();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){

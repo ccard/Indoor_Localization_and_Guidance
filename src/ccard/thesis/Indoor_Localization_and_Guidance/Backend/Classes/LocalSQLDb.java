@@ -3,6 +3,7 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Base64;
@@ -44,7 +45,7 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
     private static final String GET_ALL_IMAGES = "SELECT _id AS ID, location, descriptor, keypoints "+
             "FROM images";
 
-    private static final String CHECK_FOR_IMAGES = "SELECT _id FROM images WHERE _id=0";
+    private static final String CHECK_FOR_IMAGES = "SELECT COUNT(*) FROM images";
 
 
     public LocalSQLDb(Context context){
@@ -64,15 +65,14 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public boolean openConnection() throws DBError {
-        Cursor c = getReadableDatabase().rawQuery(CHECK_FOR_IMAGES,null);
-        boolean ret = (c.getCount() == 0 ? false : true);
-        c.close();
-        return ret;
+        long numRows = DatabaseUtils.queryNumEntries(getReadableDatabase(),"images");
+        return (numRows > 0 ? true : false);
     }
 
     @Override
     public boolean closeConnection() throws DBError {
-        return false;
+        this.close();
+        return true;
     }
 
     @Override
@@ -170,7 +170,8 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
         image.put("descriptor",discriptor);
         image.put("keypoints",keypoints);
 
-        return (getWritableDatabase().insert("images","location",image) == -1 ? false : true);
+        long test = getWritableDatabase().insert("images","location",image);
+        return (test == -1 ? false : true);
     }
 
     @Override

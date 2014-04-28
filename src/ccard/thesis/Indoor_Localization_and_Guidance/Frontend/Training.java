@@ -60,6 +60,17 @@ public class Training extends Activity {
         new Load_Save(this,sqlDb,loader,null,orb).execute(files.next());
     }
 
+    @Override
+    public void onPause(){
+        try {
+            sqlDb.closeConnection();
+        } catch (DBError dbError) {
+            LogFile.getInstance().e("Failed to close database");
+            LogFile.getInstance().flushLog();
+        }
+        super.onPause();
+    }
+
     private JSONObject loadParams(){
         JSONObject params = null;
         try {

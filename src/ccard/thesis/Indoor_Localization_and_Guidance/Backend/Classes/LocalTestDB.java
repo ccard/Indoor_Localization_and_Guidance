@@ -2,6 +2,7 @@ package ccard.thesis.Indoor_Localization_and_Guidance.Backend.Classes;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.DataBase;
 import ccard.thesis.Indoor_Localization_and_Guidance.Backend.Interfaces.Descriptor;
@@ -188,12 +189,21 @@ public class LocalTestDB implements DataBase {
      * @return the image
      * @throws DBError
      */
-    public ImageContainer loadImage(String file) throws DBError{
+    public ImageContainer loadImage(String file,Descriptor des) throws DBError{
         AssetManager manager = context.getResources().getAssets();
         InputStream is = null;
         try {
             is = manager.open(file);
-            MyMat tmp = new MyMat(BitmapFactory.decodeStream(is));
+            BitmapFactory.Options opt = new BitmapFactory.Options();
+            opt.inJustDecodeBounds = false;
+            opt.inPreferredConfig = Bitmap.Config.RGB_565;
+            opt.inDither = false;
+            Bitmap img = BitmapFactory.decodeStream(is,null,opt);
+            MyMat tmp = new MyMat(img);
+            img.recycle();
+            img = null;
+            tmp.calcDescriptor(des);
+            Imgproc.resize(tmp,tmp,new Size(tmp.rows()/2,tmp.cols()/2));
             is.close();
             return tmp;
         } catch (IOException e) {

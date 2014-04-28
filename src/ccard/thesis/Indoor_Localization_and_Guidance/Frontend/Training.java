@@ -57,7 +57,7 @@ public class Training extends Activity {
 
         frame = (FrameLayout)findViewById(R.id.TrainingView);
         location = (EditText)findViewById(R.id.location_field);
-        new Load_Save(this,sqlDb,loader,null,null).execute(files.next());
+        new Load_Save(this,sqlDb,loader,null,orb).execute(files.next());
     }
 
     private JSONObject loadParams(){
@@ -118,9 +118,9 @@ public class Training extends Activity {
             sqlDb = db;
             this.context = context;
             loader = testDB;
+            this.des = des;
             if (img != null){
                 toSave = img;
-                this.des = des;
             }
         }
         @Override
@@ -129,17 +129,20 @@ public class Training extends Activity {
             if (strings.length == 1){
                 String file = strings[0];
                 try {
-                    img = loader.loadImage(file);
+                    img = loader.loadImage(file,des);
                 } catch (DBError dbError) {
                     LogFile.getInstance().e(dbError.getStackTrace().toString());
                     LogFile.getInstance().flushLog();
                 }
             } else {
                 try {
-                    toSave.calcDescriptor(des);
-                    toSave.release();
-                    sqlDb.saveDescriptor_Keypoints(strings[0],toSave);
-                    img = loader.loadImage(strings[1]);
+                    if (sqlDb.saveDescriptor_Keypoints(strings[0],toSave)){
+                        LogFile.getInstance().l("Saved Image: "+strings[0]);
+                    } else {
+                        LogFile.getInstance().l("Failed to save file");
+                    }
+                    LogFile.getInstance().flushLog();
+                    img = loader.loadImage(strings[1],des);
                 } catch (DBError dbError) {
                     LogFile.getInstance().e(dbError.getStackTrace().toString());
                     LogFile.getInstance().flushLog();
@@ -160,9 +163,8 @@ public class Training extends Activity {
             super.onPostExecute(imageContainer);
             currImage = imageContainer;
             pd.dismiss();
-
             frame.setBackground(new BitmapDrawable(getResources(), imageContainer.render(false)));
-
+            ((MyMat) currImage).release();
         }
     }
 

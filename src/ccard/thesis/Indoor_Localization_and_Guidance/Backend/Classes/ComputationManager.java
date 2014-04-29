@@ -196,7 +196,14 @@ public class ComputationManager extends AsyncTask<Integer,JSONObject,Integer> {
                     int choice = localize(query);
                     if (choice < 0) continue;
                     LogFile.getInstance().l("The choice made was: "+choice);
-                    publishProgress(formMessage("" + choice));
+                    try {
+                        publishProgress(formMessage(db.getLocation(choice)));
+                    } catch (DBError dbError) {
+                        dbError.printStackTrace();
+                        LogFile.getInstance().e(dbError.getStackTrace());
+                        LogFile.getInstance().e(dbError.getMessage());
+                        LogFile.getInstance().flushLog();
+                    }
                 } else {
                     publishProgress(formRender(query.render(false)));
                 }

@@ -188,6 +188,12 @@ public class LocalSQLDb extends SQLiteOpenHelper implements DataBase {
         return location;
     }
 
+    /**
+     * This method checks to see of the location with the name already exists
+     * @param location the location name to check
+     * @return the id of the location or -1 if not found
+     * @throws DBError
+     */
     private long checkLocation(String location) throws DBError{
         String[] args = {location};
         Cursor c = getReadableDatabase().rawQuery(CHECK_LOCATION,args);
